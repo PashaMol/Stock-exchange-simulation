@@ -222,7 +222,7 @@ def my_assets(login, password):
     client_socket.close()
     return ret
 
-#print(get_stars('TEST', '1234'))
+print(remove_star(['nigger', 'sama', 'lama', 'dama', 'lama'],'TEST', '1234'))
 #print(get_stars('TEST', '1234'))
 #print(register("TEST2", "1234"))
 #print(bug_log("Nice. EPIC TEST"))
