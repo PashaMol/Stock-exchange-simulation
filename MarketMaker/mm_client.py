@@ -33,3 +33,15 @@ def process(req, login):
     client_socket.close()
     return re
 
+def update():
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect((IP, PORT))
+    client_socket.setblocking(False)
+    command = 'update'
+    client_socket.send(pickle.dumps(command))
+    rec(client_socket)
+    re = rec(client_socket)
+    client_socket.close()
+    return re
+
+
