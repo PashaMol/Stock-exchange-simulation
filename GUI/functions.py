@@ -4,6 +4,14 @@ from datetime import datetime
 import time
 import sqlite3
 import random
+
+#######
+import os
+import sys
+path = os.path.dirname(os.getcwd())
+sys.path.append(path)
+#######
+
 import client
 import requests
 from bs4 import BeautifulSoup
@@ -204,18 +212,5 @@ def is_number(s):
 
     return True
 
-
-conn = sqlite3.connect('C:\coding\projServer\orders.db')
-c = conn.cursor()
-c.execute("CREATE TABLE IF NOT EXISTS orders(reqid REAL, name TEXT, type TEXT, request TEXT, product TEXT, amount REAL, price REAL, uid REAL)")
-#c.execute("INSERT INTO orders VALUES(17, 'Meee', 'Limit', 'sell', 'pony', 11, 11, 69420)")
-#fill_demo()
-c.execute('SELECT * FROM orders')
-data1 = c.fetchall()
-num = 0
-for el in data1:
-    num+=1
-    print(el)
-print(str(num) + " elements")
 
 getPersonalData()

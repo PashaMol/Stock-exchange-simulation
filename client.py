@@ -226,8 +226,8 @@ def my_assets(login, password):
 #print(get_stars('TEST', '1234'))
 #print(register("TEST2", "1234"))
 #print(bug_log("Nice. EPIC TEST"))
-#print(process( ['Na', 'Limit', 'sell', '1234', '20', '1'] , "TEST", "1234" ))
-#print(process( ['Noice', 'Limit', 'buy', '1234', '20', '1'] , "TEST2", "1234" ))
+#print(process( ['Na', 'Limit', 'sell', 'GasTm', '1', '700'] , "TEST", "1234" ))
+#print(process( ['Noice', 'Limit', 'buy','1234', '20', '1'] , "TEST2", "1234" ))
 
 #print(register('pasham999', '1234'))
 #print(get_balance('Nigga9'))

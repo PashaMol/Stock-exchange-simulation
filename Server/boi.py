@@ -93,6 +93,23 @@ def add_star(what, login, password):
     return True
   st.execute(f"INSERT INTO stars VALUES('{login}', '{what}')")
 
+global max_buy_d, min_sell_d 
+max_buy_d = dict()
+min_sell_d = dict()
+
+def max_buy(prod):
+  try:
+    return max_buy_d[prod]
+  except: pass
+  c.execute(f"SELECT MAX(price) FROM orders WHERE product = '{prod}' AND request = 'buy'")
+  return(c.fetchall()[0][0])
+  
+def min_sell(prod):
+  try: return min_sell_d[prod]
+  except: pass
+  c.execute(f"SELECT MIN(price) FROM orders WHERE product = '{prod}' AND request = 'sell'")
+  return(c.fetchall()[0][0])
+
 def remove_star(what, login, password):
   if not find(login, password):
     return False
@@ -249,11 +266,6 @@ def add_asset(id, product, amount):
   a.execute(f"SELECT * FROM assets WHERE product = '{product}' and uid = {id}")
   fet = a.fetchall()
   a.execute(f"SELECT * FROM assets")
-  print("GOT: ", id, product, amount)
-  print(a.fetchall())
-  print(fet)
-  print("LEN: ", len(fet))
-  #if amount <= 0: time.sleep(200)
   if len(fet) == 0:
     a.execute(f"INSERT INTO assets VALUES({id}, '{product}', '{amount}')")
   else:
@@ -266,6 +278,7 @@ def my_assets(login, password):
   return a.fetchall()
 
 def process(b, login, password):
+  global max_buy_d
   mm = False
   if password == 'c35312fb3a7e05b7a44db2326bd29040':
     mm = True
@@ -327,6 +340,8 @@ def process(b, login, password):
         transaction_list.insert(list_counter, [reqid, i[0], float(uid), i[7], i[5], i[5] * i[6]])
         add_to_buffer(['delete', reqid])
         c.execute("DELETE FROM orders WHERE reqid =" + "\'" + str(i[0]) + "\'")
+        c.execute(f"SELECT * FROM orders WHERE reqid = {i[0]}")
+        if c.fetchall()[0][7] == min_sell_d[product]: min_sell_d[prroduct] = min_sell(product)
         if not mm: add_asset(uid, product, i[5])
         add_asset(i[7], product, -1*i[5])
         add_history(login, product, i[5], i[5]*i[6], "buy")
@@ -340,6 +355,10 @@ def process(b, login, password):
       c.execute("INSERT INTO orders VALUES(" + str(reqid) + ", '" + str(from_u) + "', '" + b[1] + "', '" + b[2] + "', '" + product + "', " + str(q) + ", " + str(price) + ", " + str(uid) + ")")
       calc_average(product, price, 'buy')    #Do we need that?
       box_graph(product, 'buy')
+      try:
+        if price > max_buy_d[product]: max_buy_d[product] = price
+      except:
+        max_buy_d[product] = max_buy(product)
 
   else:
     c.execute("SELECT * FROM orders WHERE request = 'buy' AND product = " + "\'" + product + "\'" + " AND price >= " + str(price) + " ORDER BY price DESC")
@@ -365,6 +384,8 @@ def process(b, login, password):
         transaction_list.insert(list_counter, [i[0], reqid, i[7], float(uid), i[5], i[5] * i[6]])
         add_to_buffer(['delete', reqid])
         c.execute("DELETE FROM orders WHERE reqid =" + "\'" + str(i[0]) + "\'")
+        c.execute(f"SELECT * FROM orders WHERE reqid = {i[0]}")
+        if c.fetchall()[0][7] == max_buy_d[product]: max_buy_d[prroduct] = max_buy(product)
         if not mm: add_asset(uid, product, -1*i[5])
         add_asset(i[7], product, i[5])
         add_history(login, product, i[5], i[5]*i[6], "sell")
@@ -378,6 +399,12 @@ def process(b, login, password):
       add_to_buffer(['add', reqid, from_u, b[1] ,b[2], product, str(q), price, uid])
       calc_average(product, price, 'sell')    #Do wee need that?
       box_graph(product, 'sell')
+      try:
+        if price < min_sell_d[product]:
+          min_sell_d[product] = price
+      except:
+        min_sell_d[product] = min_sell(product)
+      
   if not mm: substract(buy, total, login)
   # print()
   # print("Total Cost:" ,total, '\n')
@@ -441,7 +468,9 @@ assets_table()
 stats = {}
 print(f'Listening for connections on {IP}:{PORT}...')
 
+
 while True:
+  
   server_socket.listen(5)
   client_socket, client_adress = server_socket.accept()
   command = rec(client_socket)
@@ -454,7 +483,7 @@ while True:
     got = rec(client_socket)
     if not got: continue
     got, login, key = got
-    if ENABLE_OUTPUT: print("Got request: ", got, key)
+    if ENABLE_OUTPUT: print("Got request: ", got, login, key)
     if key != 'c35312fb3a7e05b7a44db2326bd29040':
       if ENABLE_OUTPUT: print("Wrong key.....")
       snd(pickle.dumps([False]))
@@ -478,6 +507,16 @@ while True:
     got = rec(client_socket)
     if not got: continue
     got, login, password = got
+    if got[2] == 'buy':
+      if float(got[5]) >= min_sell(got[3]):
+        if ENABLE_OUTPUT: print("Buy bids should be cheaper than sell ones")
+        snd(pickle.dumps(["B>=S"]))
+        continue
+    else:
+      if float(got[5]) <= max_buy(got[3]):
+        if ENABLE_OUTPUT: print("Buy bids should be cheaper than sell ones")
+        snd(pickle.dumps(["S<=B"]))
+        continue
     if ENABLE_OUTPUT: print("Got request: ", got, login, password)
     if not find(login, password):
       if ENABLE_OUTPUT: print("Wrong login/password combination.....")

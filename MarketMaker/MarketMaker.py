@@ -1,6 +1,12 @@
 import csv
 import time
 import random as rnd
+
+import os
+import sys
+path = os.path.dirname(os.getcwd())
+sys.path.append(path)
+
 import mm_client
 
 
@@ -82,6 +88,7 @@ for i in range(10000):
         MarketPrices[i].append(Market[i].GeneratePrice())
         NewQuery = Market[i].GenerateQuery()
         if (NewQuery != "Broke"):
+            print(NewQuery)
             mm_client.process(NewQuery, 'Logen')
 
     #time.sleep(6.0)
