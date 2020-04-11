@@ -97,6 +97,7 @@ global max_buy_d, min_sell_d
 max_buy_d = dict()
 min_sell_d = dict()
 
+'''
 def max_buy(prod):
   try:
     return max_buy_d[prod]
@@ -109,6 +110,7 @@ def min_sell(prod):
   except: pass
   c.execute(f"SELECT MIN(price) FROM orders WHERE product = '{prod}' AND request = 'sell'")
   return(c.fetchall()[0][0])
+'''
 
 def remove_star(what, login, password):
   if not find(login, password):
@@ -243,7 +245,7 @@ def get_id(login):
   u.execute(f"SELECT * FROM users WHERE login = '{login}'")
   try:
     return u.fetchall()[0][0]
-  except: pass
+  except: return False
 
 def add_history(login, product, amount, price, type):
   h.execute(f"INSERT INTO history VALUES('{login}', '{product}', {amount}, {price}, '{type}')")  
@@ -278,7 +280,8 @@ def my_assets(login, password):
   return a.fetchall()
 
 def process(b, login, password):
-  global max_buy_d
+  print('B:', b)
+  #global max_buy_d
   mm = False
   if password == 'c35312fb3a7e05b7a44db2326bd29040':
     mm = True
@@ -300,6 +303,8 @@ def process(b, login, password):
   # print()
   from_u = login
   uid = get_id(login)
+  if not uid:
+    return False
   if b[1].lower() == 'limit':
     limit = True
   else:
@@ -340,25 +345,28 @@ def process(b, login, password):
         transaction_list.insert(list_counter, [reqid, i[0], float(uid), i[7], i[5], i[5] * i[6]])
         add_to_buffer(['delete', reqid])
         c.execute("DELETE FROM orders WHERE reqid =" + "\'" + str(i[0]) + "\'")
-        c.execute(f"SELECT * FROM orders WHERE reqid = {i[0]}")
-        if c.fetchall()[0][7] == min_sell_d[product]: min_sell_d[prroduct] = min_sell(product)
+        #c.execute(f"SELECT * FROM orders WHERE reqid = {i[0]}")
+        #if c.fetchall()[0][7] == min_sell_d[product]: min_sell_d[prroduct] = min_sell(product)
         if not mm: add_asset(uid, product, i[5])
         add_asset(i[7], product, -1*i[5])
         add_history(login, product, i[5], i[5]*i[6], "buy")
-        calc_average(product, -1*i[6], 'sell')   #Do we ned that?
+        calc_average(product, -1*i[6], 'sell')   #Do we need that?
         box_graph(product, 'sell')
         list_counter += 1
     if q != 0 and limit:
       if not mm: add_debt(login, reqid, q*price)
       if not mm: substract(True, q*price, login)
       add_to_buffer(['add', reqid, from_u, b[1] ,b[2], product, str(q), price, uid])
+      print("WHY?", reqid, from_u, b[1], b[2], product, q, price, uid)
       c.execute("INSERT INTO orders VALUES(" + str(reqid) + ", '" + str(from_u) + "', '" + b[1] + "', '" + b[2] + "', '" + product + "', " + str(q) + ", " + str(price) + ", " + str(uid) + ")")
       calc_average(product, price, 'buy')    #Do we need that?
       box_graph(product, 'buy')
+      '''
       try:
         if price > max_buy_d[product]: max_buy_d[product] = price
       except:
         max_buy_d[product] = max_buy(product)
+      '''
 
   else:
     c.execute("SELECT * FROM orders WHERE request = 'buy' AND product = " + "\'" + product + "\'" + " AND price >= " + str(price) + " ORDER BY price DESC")
@@ -384,8 +392,8 @@ def process(b, login, password):
         transaction_list.insert(list_counter, [i[0], reqid, i[7], float(uid), i[5], i[5] * i[6]])
         add_to_buffer(['delete', reqid])
         c.execute("DELETE FROM orders WHERE reqid =" + "\'" + str(i[0]) + "\'")
-        c.execute(f"SELECT * FROM orders WHERE reqid = {i[0]}")
-        if c.fetchall()[0][7] == max_buy_d[product]: max_buy_d[prroduct] = max_buy(product)
+        #c.execute(f"SELECT * FROM orders WHERE reqid = {i[0]}")
+        #if c.fetchall()[0][7] == max_buy_d[product]: max_buy_d[prroduct] = max_buy(product)
         if not mm: add_asset(uid, product, -1*i[5])
         add_asset(i[7], product, i[5])
         add_history(login, product, i[5], i[5]*i[6], "sell")
@@ -395,15 +403,18 @@ def process(b, login, password):
         list_counter += 1
 
     if q != 0 and limit:
+      print("WHY?", reqid, from_u, b[1], b[2], product, q, price, uid)
       c.execute(f"INSERT INTO orders VALUES({reqid}, '{from_u}', '{b[1]}', '{b[2]}', '{product}', {q}, {price}, {uid})")
       add_to_buffer(['add', reqid, from_u, b[1] ,b[2], product, str(q), price, uid])
       calc_average(product, price, 'sell')    #Do wee need that?
       box_graph(product, 'sell')
+      '''
       try:
         if price < min_sell_d[product]:
           min_sell_d[product] = price
       except:
         min_sell_d[product] = min_sell(product)
+      '''
       
   if not mm: substract(buy, total, login)
   # print()
@@ -507,6 +518,7 @@ while True:
     got = rec(client_socket)
     if not got: continue
     got, login, password = got
+    '''
     if got[2] == 'buy':
       if float(got[5]) >= min_sell(got[3]):
         if ENABLE_OUTPUT: print("Buy bids should be cheaper than sell ones")
@@ -517,6 +529,7 @@ while True:
         if ENABLE_OUTPUT: print("Buy bids should be cheaper than sell ones")
         snd(pickle.dumps(["S<=B"]))
         continue
+    '''
     if ENABLE_OUTPUT: print("Got request: ", got, login, password)
     if not find(login, password):
       if ENABLE_OUTPUT: print("Wrong login/password combination.....")

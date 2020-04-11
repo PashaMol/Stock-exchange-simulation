@@ -82,14 +82,15 @@ Market = [Shares(t) for t in AvailableGoods]
 
 MarketPrices = [[] for t in AvailableGoods]
 
+mm_client.register('MM')
+
 for i in range(10000):
     for i in range(len(Market)):
         #time.sleep(1.0)
         MarketPrices[i].append(Market[i].GeneratePrice())
         NewQuery = Market[i].GenerateQuery()
         if (NewQuery != "Broke"):
-            print(NewQuery)
-            mm_client.process(NewQuery, 'Logen')
+            mm_client.process(NewQuery, 'MM')
 
     #time.sleep(6.0)
 

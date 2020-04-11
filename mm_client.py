@@ -1,6 +1,7 @@
 import socket
 import pickle
 import time
+import client
 
 global key
 key = 'c35312fb3a7e05b7a44db2326bd29040'
@@ -32,4 +33,7 @@ def process(req, login):
     re = rec(client_socket)
     client_socket.close()
     return re
+
+def register(login):
+  client.register(login, key)
 
