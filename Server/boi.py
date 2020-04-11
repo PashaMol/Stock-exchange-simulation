@@ -280,7 +280,6 @@ def my_assets(login, password):
   return a.fetchall()
 
 def process(b, login, password):
-  print('B:', b)
   #global max_buy_d
   mm = False
   if password == 'c35312fb3a7e05b7a44db2326bd29040':
@@ -357,7 +356,6 @@ def process(b, login, password):
       if not mm: add_debt(login, reqid, q*price)
       if not mm: substract(True, q*price, login)
       add_to_buffer(['add', reqid, from_u, b[1] ,b[2], product, str(q), price, uid])
-      print("WHY?", reqid, from_u, b[1], b[2], product, q, price, uid)
       c.execute("INSERT INTO orders VALUES(" + str(reqid) + ", '" + str(from_u) + "', '" + b[1] + "', '" + b[2] + "', '" + product + "', " + str(q) + ", " + str(price) + ", " + str(uid) + ")")
       calc_average(product, price, 'buy')    #Do we need that?
       box_graph(product, 'buy')
@@ -403,7 +401,6 @@ def process(b, login, password):
         list_counter += 1
 
     if q != 0 and limit:
-      print("WHY?", reqid, from_u, b[1], b[2], product, q, price, uid)
       c.execute(f"INSERT INTO orders VALUES({reqid}, '{from_u}', '{b[1]}', '{b[2]}', '{product}', {q}, {price}, {uid})")
       add_to_buffer(['add', reqid, from_u, b[1] ,b[2], product, str(q), price, uid])
       calc_average(product, price, 'sell')    #Do wee need that?
