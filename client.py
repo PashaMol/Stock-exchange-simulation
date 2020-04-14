@@ -234,6 +234,7 @@ def my_assets(login, password):
 #print(known_user("TEST", False))
 #print(my_assets("TEST", "1234"))
 #print(get_history("TEST", "1234"))
+print(add_star('boi', 'TEST', 1234))
 
     
 '''

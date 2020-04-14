@@ -87,11 +87,9 @@ def get_stars(login, password):
 def add_star(what, login, password):
   if not find(login, password):
     return False
-  if type(what) == list:
-    for i in what:
-      st.execute(f"INSERT INTO stars VALUES('{login}', '{i}')")
-    return True
-  st.execute(f"INSERT INTO stars VALUES('{login}', '{what}')")
+  for i in what:
+    st.execute(f"INSERT INTO stars VALUES('{login}', '{i}')")
+  return True
 
 global max_buy_d, min_sell_d 
 max_buy_d = dict()
@@ -115,11 +113,9 @@ def min_sell(prod):
 def remove_star(what, login, password):
   if not find(login, password):
     return False
-  if type(what) == list:
-    for i in what:
-      st.execute(f"DELETE FROM stars WHERE login = '{login}' AND what = '{i}'")
-    return True
-  st.execute(f"DELETE FROM stars WHERE login = '{login}' AND what = '{what}'")
+  for i in what:
+    st.execute(f"DELETE FROM stars WHERE login = '{login}' AND what = '{i}'")
+  return True
 
 def calc_average(product, new, buy_sell):
   prod = product
