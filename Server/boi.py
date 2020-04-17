@@ -32,11 +32,14 @@ def box_graph(product, buy_sell):
   for i in prices:
     b.execute(f"INSERT INTO box VALUES('{product}', {i}, {time.time()}, '{buy_sell}')")
 
-def return_box_graph(product, buy_sell, start, end):
-  b.execute(f"SELECT * FROM box WHERE product = '{product}' AND type = '{buy_sell}' AND time >= {start} AND time <= {end} ORDER BY price")
+def return_box_graph(product, buy_sell, start_end):
   ret = []
-  for i in b.fetchall():
-    ret.append(i[1])
+  for pair in start_end:
+    b.execute(f"SELECT * FROM box WHERE product = '{product}' AND type = '{buy_sell}' AND time >= {pair[0]} AND time <= {pair[1]}")
+    ret1 = []
+    for i in b.fetchall():
+      ret1.append(i[1])
+    ret.append(ret1)
   return ret
 
 def create_table():
@@ -70,6 +73,17 @@ def send_many(num, li):
     go = li[i]
     se = pickle.dumps(go)
     if not snd(se): break
+
+def send_many_box(num, li):
+  snd(pickle.dumps(num))
+  for i in range(num):
+    rec(client_socket)
+    snd(pickle.dumps(len(li[i])))
+    for j in range(len(li[i])):
+      rec(client_socket)
+      go = li[i][j]
+      se = pickle.dumps(go)
+      if not snd(se): break
 
 def return_history(login):
   h.execute(f"SELECT * FROM history WHERE login = '{login}'")
@@ -556,10 +570,16 @@ while True:
   elif command == 'box':
     if ENABLE_OUTPUT: print("Working on \"box\" command.....")
     snd(pickle.dumps('ok'))
-    try: product, buy_sell, strt, end = rec(client_socket)
+    try: product, buy_sell, L = rec(client_socket)
     except: continue
-    ret = return_box_graph(product, buy_sell, strt, end)
-    send_many(len(ret), ret)
+    start_end = []
+    try:
+      for i in range(L):
+        snd(pickle.dumps('ok'))
+        start_end.append(rec(client_socket))
+    except: continue
+    ret = return_box_graph(product, buy_sell, start_end)
+    send_many_box(len(ret), ret)
 
   elif command == 'my assets':
     if ENABLE_OUTPUT: print("Working on \"my assets\" command.....")

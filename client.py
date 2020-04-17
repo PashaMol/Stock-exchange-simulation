@@ -190,19 +190,27 @@ def delete(login, id):
     rec(client_socket)
     client_socket.send(pickle.dumps([login, id]))
 
-def box_graph(product, buy_sell, start, end):
+def box_graph(product, buy_sell, start_end):
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((IP, PORT))
     client_socket.setblocking(False)
     command = 'box'
     client_socket.send(pickle.dumps(command))
     rec(client_socket)
-    client_socket.send(pickle.dumps([product, buy_sell, start, end]))
+    client_socket.send(pickle.dumps([product, buy_sell, len(start_end)]))
+    for i in start_end:
+      rec(client_socket)
+      client_socket.send(pickle.dumps(i))
     re = rec(client_socket)
     ret = []
     for i in range(re):
+      ret1 = []
+      client_socket.send(pickle.dumps('ok'))
+      re2 = rec(client_socket)
+      for j in range(re2):
         client_socket.send(pickle.dumps('ok'))
-        ret.insert(i, rec(client_socket))
+        ret1.append(rec(client_socket))
+      ret.append(ret1)
     client_socket.close()
     return ret
 
@@ -234,7 +242,8 @@ def my_assets(login, password):
 #print(known_user("TEST", False))
 #print(my_assets("TEST", "1234"))
 #print(get_history("TEST", "1234"))
-print(add_star('boi', 'TEST', 1234))
+#print(remove_star(['boi'], 'TEST', 1234))
+#print(box_graph('GasTm', 'buy', [[0, 15865453900.99], [0, 15865453900.99]]))
 
     
 '''
