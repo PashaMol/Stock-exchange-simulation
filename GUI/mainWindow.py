@@ -86,8 +86,8 @@ class MainWindow(QDialog):
 
         customTheme()
 
-        #data.pref_prd = list(client.get_stars(data.username, data.password))
-        print(client.get_stars(data.username, data.password))
+        #data.pref_prd = list(client.get_stars(data.username, data.password))      # TODO UNCOMMENT
+        #print(client.get_stars(data.username, data.password))
 
         self.groupBox.setLayout(self.formLayout)
         scroll = QScrollArea()
@@ -165,8 +165,8 @@ class MainWindow(QDialog):
         rightArea = QVBoxLayout()
 
         threeScrolls = QHBoxLayout()
-        threeScrolls.addWidget(scroll0)
         threeScrolls.addWidget(scroll)
+        threeScrolls.addWidget(scroll0)
         Column = QVBoxLayout()
         Column.addWidget(scroll3)
         Column.addWidget(scroll2)
@@ -425,6 +425,19 @@ class MainWindow(QDialog):
                 self.graph2.no_data()
 
 
+            if data.joinG[0] == True and data.joinG[1] == True:
+                data.zoom1 = data.zoom
+                tm = time.time()
+                step = 3600
+                tm_ = tm - 60 * 60 * 24
+                inp = [[x, x + step] for x in range(int(tm_), int(tm), int(step))]
+                prd = self.MainProduct.currentText()
+                data.bx = client.box_graph(prd, 'buy', inp)
+                data.bx1 = client.box_graph(prd, 'sell', inp)
+                data.bx_lab = inp
+                print("dank memes1", inp)
+
+
 
 
         def call_my_assets():
@@ -444,9 +457,9 @@ class MainWindow(QDialog):
                 try:
                     if str(type) == "Buy":
 
-                        data.acPrice = func.getPrice(self.formLayout.itemAt(0).widget().text())
+                        data.acPrice = func.getPrice(self.formLayout0.itemAt(0).widget().text())
                     else:
-                        data.acPrice = func.getPrice(self.formLayout0.itemAt(self.formLayout0.count() - 1).widget().text())
+                        data.acPrice = func.getPrice(self.formLayout.itemAt(self.formLayout0.count() - 1).widget().text())
                 except: pass
 
             data.autocomplete = self.MainProduct.currentText()
@@ -594,11 +607,20 @@ class MainWindow(QDialog):
 
     def reloading(self):
         try:
-            if data.joinG[0] == True and data.joinG[1] == True:
+            if data.joinG[0] == True and data.joinG[1] == True and data.sleep == 0:
                 data.zoom1 = data.zoom
-                data.bx = client.box_graph(self.MainProduct.currentText(), "buy", 0, time.time())
-                print(data.bx)
-
+                tm = time.time()
+                step = 3600
+                tm_ = tm - 60 * 60 * 24
+                inp = [[x, x + step] for x in range(int(tm_), int(tm), int(step))]
+                prd = self.MainProduct.currentText()
+                data.bx = client.box_graph(prd, 'buy', inp)
+                data.bx1 = client.box_graph(prd, 'sell', inp)
+                data.bx_lab = inp
+                #print("dank memes", inp)
+            data.sleep += 1
+            if data.sleep == 60:
+                data.sleep = 0
             if data.zoom != 0:
                 data.graphsData = client.stats(self.MainProduct.currentText(),
                                                time.time() - (1100 - data.zoom * 10), time.time() +15, "buy")
@@ -667,8 +689,13 @@ class MainWindow(QDialog):
 
 
     def reloadData(self):
-        print("Cheers, i'll drink to that bro: ",client.my_assets(data.username, data.password))
-        print(client.get_balance(data.username))
+        if data.joinG[0] == True and data.joinG[1] == True:
+            data.sleep = 0
+
+
+
+       # print("Cheers, i'll drink to that bro: ",client.my_assets(data.username, data.password))
+        #print(client.get_balance(data.username))
         try:
             text = self.MainProduct.currentText()
             data.prd = text
@@ -782,12 +809,12 @@ class MainWindow(QDialog):
                 for el in data.yourOrd:
 
                     if el not in data.system_ord:
-                        print("v")
+                        #print("v")
                         o = 0
-                        print(data.system_ord)
-                        print(data.yourOrd)
-                        print("^ " + str(o))
-                        print()
+                       # print(data.system_ord)
+                       # print(data.yourOrd)
+                       # print("^ " + str(o))
+                       # print()
                         msg = QMessageBox()
                         msg.setWindowTitle("An order's been executed")
                         msg.setIconPixmap(QPixmap("arrow.png").scaled(80, 80))
@@ -823,18 +850,18 @@ class MainWindow(QDialog):
                 for el in prices:
                         #print(el, prices[el])
                     # try:
-                        if prices[el][1][3] == "buy":
+                        if prices[el][1][3] == "sell":
                             thisorder = QPushButton()
                             thisorder.setStyleSheet(styles.sellbutton)
                             sign = func.sellOrder(prices[el][1][2], prices[el][1][4], str(prices[el][0]), prices[el][1][6])
                             thisorder.setText(sign)
-                            self.formLayout0.insertRow(0, thisorder)
+                            self.formLayout0.addRow(thisorder)
                         else:
                             thisorder = QPushButton()
                             thisorder.setStyleSheet(styles.buybutton)
                             sign = func.buyOrder(prices[el][1][2], prices[el][1][4], str(prices[el][0]), prices[el][1][6])
                             thisorder.setText(sign)
-                            self.formLayout.addRow(thisorder)
+                            self.formLayout.insertRow(0,thisorder)
                     # except: pass
 
             # print("v")

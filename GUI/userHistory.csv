@@ -48,7 +48,6 @@ Sell,Limit,Milk,1,1
 Sell,Limit,Milk,1,1
 Sell,Limit,ApplesInc,1,0
 Sell,Limit,Milk,1,1
-Buy,Limit,ApplesInc,10,236.15
-Sell,Limit,ApplesInc,1,1.0
-Sell,Limit,ApplesInc,100,1.0
-Sell,Limit,GasTm,1,0.52
+Sell,Limit,HseCoin,1,115.54
+Buy,Limit,PoniesCo,1,30.19
+Sell,Limit,PoniesCo,1,1

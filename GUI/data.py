@@ -45,8 +45,11 @@ box1 = []
 box2 = []
 bx = []
 bx1 = []
+bx_lab = []
+bx1_lab = []
 working_time = 0
-
+sleep = 0
+box_flag = True
 DATA = []
 
 FIRSTSTART = True

@@ -217,6 +217,8 @@ class Ui_DialogConfig(object):
         #     elif text == "":
         #         groupBox0.setTitle("Your Graphs:     Click to delete from Your Graphs.")
         def remove_prd(index):
+            print("DLETE THIS NIBO", data.pref_prd[index])
+            client.remove_star(data.pref_prd[index], data.username, data.password)
             del data.pref_prd[index]
             for i in reversed(range(formLayout1.count())):
                 formLayout1.itemAt(i).widget().deleteLater()
@@ -228,6 +230,7 @@ class Ui_DialogConfig(object):
                 t.setStyleSheet("text-align: left;")
                 formLayout1.insertRow(0, t)
             print(data.pref_prd)
+
             data.addToBox = [True, ""]
 
     def joinGraphs(self, state):
