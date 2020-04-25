@@ -214,7 +214,7 @@ def is_number(s):
 
     return True
 
-
+'''
 conn = sqlite3.connect('C:\coding\projServer\orders.db')
 c = conn.cursor()
 c.execute("CREATE TABLE IF NOT EXISTS orders(reqid REAL, name TEXT, type TEXT, request TEXT, product TEXT, amount REAL, price REAL, uid REAL)")
@@ -227,5 +227,6 @@ for el in data1:
     num+=1
     print(el)
 print(str(num) + " elements")
+'''
 
 getPersonalData()
