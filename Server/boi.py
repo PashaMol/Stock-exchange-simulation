@@ -5,6 +5,7 @@ import csv
 import time
 
 ENABLE_OUTPUT = True
+ENABLE_IPv4 = True
 
 global stats
 global conn, conn1
@@ -15,6 +16,9 @@ last_delete = time.time()
 buffer = []
 
 IP = "127.0.0.1"
+if ENABLE_IPv4:
+  hostname = socket.gethostname()
+  IP = socket.gethostbyname(hostname)
 PORT = 1234
 
 def snd(what):
@@ -245,6 +249,12 @@ def delete(login, id):
     return_debt(login, id)
   except:
     pass
+
+def delete_history(login, password):
+  if not find(login, password):
+    return False
+  h.execute(f"DELETE FROM history WHERE login = '{login}'")
+  return True
 
 def bug_log(text):
     f = open("bug_log.txt", "a")
@@ -626,6 +636,13 @@ while True:
         if not find(login, password): snd(pickle.dumps(False))
         ret = return_history(login)
         send_many(len(ret), ret)
+
+  elif command == 'delete history':
+        if ENABLE_OUTPUT: print("Working on \"delete history\" command.....")
+        snd(pickle.dumps("ok"))
+        login, password = rec(client_socket)
+        ret = delete_history(login, password)
+        snd(pickle.dumps(ret))
 
   elif command == 'stats':
     if ENABLE_OUTPUT: print("Working on \"stats\" command.....")

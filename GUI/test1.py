@@ -12,7 +12,7 @@ def fill_demo(tm0, prd):
             e = b + int(random.random()*200) + 1
             print(b,e)
             p = str(random.randrange(b, e))
-            c.execute(f"INSERT INTO box VALUES('{prd}',{p},{t},'sell')")
+            c.execute(f"INSERT INTO box VALUES('{prd}',{p},{t},'buy')")
     conn.commit()
 
 def read():

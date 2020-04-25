@@ -437,7 +437,7 @@ class MainWindow(QDialog):
                 data.bx_lab = inp
                 print("dank memes1", inp)
 
-
+            data.box_reload = 0
 
 
         def call_my_assets():
@@ -659,12 +659,17 @@ class MainWindow(QDialog):
                     self.graph1.plot()
 
 
-                self.graph2.clear()
-                if data.joinG[0] == True and data.joinG[1] == True:
-                    self.graph2.candels()
-                else:
-                    self.graph2.plot()
 
+                if data.joinG[0] == True and data.joinG[1] == True:
+                    if data.box_reload < 1:
+                        self.graph2.clear()
+                        self.graph2.candels()
+                        self.sliderDOWN.setHidden(True)
+                        data.box_reload +=1
+                else:
+                    self.graph2.clear()
+                    self.graph2.plot()
+                    self.sliderDOWN.setHidden(False)
 
 
             else:
@@ -675,6 +680,7 @@ class MainWindow(QDialog):
 
 
     def prdChanged(self):
+        data.box_reload = 0
         self.sliderChanged1()
         self.sliderChanged2()
         if self.MainProduct.currentText() == "No filter":

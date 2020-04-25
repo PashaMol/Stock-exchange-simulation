@@ -438,6 +438,9 @@ class CanvasLow(FigureCanvas):
         mpl.use('agg')
         mpl.rcParams['boxplot.whiskerprops.linestyle'] = '-'
 
+       # label_size = 8
+        #mpl.rcParams['xtick.labelsize'] = label_size
+
         ax1 = self.figure.add_subplot(111)
 
         c2 = "red"
@@ -470,11 +473,12 @@ class CanvasLow(FigureCanvas):
         c1 = [0, 1, 0, 0.69]
         c2 = [1, 0 ,0 , 0.69]
         labelList = [func.sec_to_time(sec) for sec in data.bx_lab]
-
+        labelList_emp = [" "]*len(labelList)
         #print(labelList)
         #print("HERE____GG", data.bx_lab)
         print(":: ", len(to_build), len(labelList))
-        box1 = ax1.boxplot(to_build, positions= np.arange(len(to_build))-0.2 ,  labels=labelList, notch=False, patch_artist=True,
+        s = time()
+        box1 = ax1.boxplot(to_build, positions= np.arange(len(to_build))-0.2 ,  labels=labelList_emp, notch=False, patch_artist=True,
                            widths=0.3, medianprops=dict(color='white'),
                            boxprops=dict(facecolor=c1, color=c1),
                            capprops=dict(color=c1),
@@ -489,6 +493,7 @@ class CanvasLow(FigureCanvas):
                            whiskerprops=dict(color=c2),
                            flierprops=dict(color=c2, markeredgecolor=c2)
                            )
+
         #mplcursors.cursor(ax1, hover=True)
         self.figure.autofmt_xdate()
         #self.figure.tight_layout()
@@ -496,6 +501,7 @@ class CanvasLow(FigureCanvas):
         ax1.plot()
 
         self.draw_idle()
+        print("gui go brrr", time() - s )
 
 
     def no_data(self):

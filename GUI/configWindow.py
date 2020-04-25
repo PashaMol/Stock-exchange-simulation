@@ -204,6 +204,7 @@ class Ui_DialogConfig(object):
         def deleteHis():
             data.clearHis = True
             func.clearHis()
+            client.delete_history(data.username, data.password)
             deleteHisButton.setText("DONE")
             deleteHisButton.setDisabled(True)
 

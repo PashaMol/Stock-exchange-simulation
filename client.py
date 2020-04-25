@@ -82,6 +82,16 @@ def get_history(login, password):
     client_socket.close()
     return ret
 
+def delete_history(login, password):
+    client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    client_socket.connect((IP, PORT))
+    client_socket.setblocking(False)
+    command = 'delete history'
+    client_socket.send(pickle.dumps(command))
+    rec(client_socket)
+    client_socket.send(pickle.dumps([login, hashed(password)]))
+    return rec(client_socket)
+
 def get_id(login):
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((IP, PORT))
@@ -244,7 +254,7 @@ def my_assets(login, password):
 #print(get_history("TEST", "1234"))
 #print(remove_star(['boi'], 'TEST', 1234))
 #print(box_graph('GasTm', 'buy', [[0, 15865453900.99], [0, 15865453900.99]]))
-
+#print(delete_history('TEST', '1234'))
     
 '''
 IP = socket.gethostname()

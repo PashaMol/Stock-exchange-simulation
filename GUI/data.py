@@ -47,6 +47,7 @@ bx = []
 bx1 = []
 bx_lab = []
 bx1_lab = []
+box_reload = 0
 working_time = 0
 sleep = 0
 box_flag = True

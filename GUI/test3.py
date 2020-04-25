@@ -25,54 +25,163 @@ class CanvasUp(FigureCanvas):
 
 
     def plotT(self):
-
+        # data1 = [('2017-01-02 02:00:00', '1.05155', '1.05197', '1.05155', '1.0519'),
+        #         ('2017-01-02 02:01:00', '1.05209', '1.05209', '1.05177', '1.05179'),
+        #         ('2017-01-02 02:02:00', '1.05177', '1.05198', '1.05177', '1.05178'),
+        #         ('2017-01-02 02:03:00', '1.05188', '1.052', '1.05188', '1.052'),
+        #         ('2017-01-02 02:04:00', '1.05196', '1.05204', '1.05196', '1.05203'),
+        #         ('2017-01-02 02:06:00', '1.05196', '1.05204', '1.05196', '1.05204'),
+        #         ('2017-01-02 02:07:00', '1.05205', '1.0521', '1.05205', '1.05209'),
+        #         ('2017-01-02 02:08:00', '1.0521', '1.0521', '1.05209', '1.05209'),
+        #         ('2017-01-02 02:09:00', '1.05208', '1.05209', '1.05208', '1.05209'),
+        #         ('2017-01-02 02:10:00', '1.05208', '1.05211', '1.05207', '1.05209'),
+        #         ('2017-01-02 02:11:00', '1.05196', '1.05204', '1.05196', '1.05204'),
+        #         ('2017-01-02 02:12:00', '1.05205', '1.0521', '1.05205', '1.05209'),
+        #         ('2017-01-02 02:13:00', '1.0521', '1.0521', '1.05209', '1.05209'),
+        #         ('2017-01-02 02:14:00', '1.05208', '1.05209', '1.05208', '1.05209'),
+        #         ('2017-01-02 02:15:00', '1.05208', '1.05211', '1.05207', '1.05209')]
+        # data0 = data.bx
+        # print("HERE WEGOAGAIN", data0)
+        # q0 = min(data0)
+        # q1 = quantile(data0, 0.25)
+        # q2 = quantile(data0, 0.5)
+        # q3 = quantile(data0, 0.75)
+        # q4 = max(data0)
+        #
+        #
+        # print("THIS GUY GOES YES1",data.bx1)
+        # tm = str(strftime("%H:%M:%S"))
+        # print(tm)
+        # data.bx1.append((  tm,str(q0),str(q1),str(q3),str(q4)))
+        # print("THIS GUY GOES YES2",data.bx1)
+        #
+        #
+        # opens_ = []
+        # closes_ = []
+        # lows_ = []
+        # highs_ = []
+        #
+        # ohlc_data = []
+        #
+        # for line in data.bx1:
+        #     ohlc_data.append((dates.datestr2num(line[0]), np.float64(line[2]), np.float64(line[1]), np.float64(line[4]),
+        #                       np.float64(line[3])))
+        #
+        #     ##
+        #     opens_.append(np.float64(line[1]))
+        #     closes_.append(np.float64(line[2]))
+        #     lows_.append(np.float64(line[3]))
+        #     highs_.append(np.float64(line[4]))
+        #
+        # self.figure.tight_layout()
+        #
+        # # self.figure.canvas.mpl_connect('button_press_event', self.clicked)
+        # # self.figure.canvas.mpl_connect('figure_leave_event', leave_figure)
+        #
+        # ax1 = self.figure.add_subplot(111)
+        # ax1.set_ylim([q0*0.9, q4 * 1.15])
+        # ax1.xaxis_date()
+        # print("something wrong. i can feel it")
+        # print(ohlc_data)
+        # candlestick_ohlc(ax1, ohlc_data, width=len(data.bx1)+10, colorup=cols[random.randint(0, len(cols)-1)], colordown='red', alpha=0.65) #TODO FINISH CANDELS
+        # #candlestick2_ochl(ax1, opens=opens_, closes=closes_, lows=lows_, highs=highs_)
+        # ax1.grid()
+        # self.figure.autofmt_xdate()
+        # ax1.xaxis.set_major_formatter(dates.DateFormatter('%d/%m/%Y %H:%M'))
+        # ax1.xaxis.set_major_locator(ticker.MaxNLocator(10))
+        #
+        #
+        #
+        # ax1.plot()
+        # self.draw_idle()
+        #
+        # # plt.xticks(rotation=30)
+        # # plt.grid()
+        # # plt.xlabel('Date')
+        # # plt.ylabel('Price')
+        # # plt.title('Historical Data EURUSD')
+        # # plt.tight_layout()
+        # # plt.show()
 
         dark = True
 
-        data = [70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0,
-                135.0, 135.0, 135.0, 136.0, 136.0, 136.0, 136.0, 136.0, 136.0, 136.0, 136.0, 136.0, 136.0, 136.0, 136.0,
-                136.0, 160.67, 160.67, 160.67, 160.67, 160.67, 162.74, 162.74, 162.74, 162.74, 162.74, 165.82, 165.82,
-                166.48, 166.48, 174.09, 174.09, 174.09, 174.09, 175.0, 175.0, 218.51, 218.51, 218.51, 218.51, 225.07,
-                241.31]
-
-        data2 = [70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0,
-                 135.0, 135.0, 135.0, 136.0, 136.0, 136.0, 136.0, 136.0, 136.0, 136.0, 136.0, 47, 19, 20, 136.0, 160.67,
-                 160.67, 160.67, 160.67, 160.67, 162.74, 162.74, 162.74, 162.74, 162.74, 165.82, 165.82, 166.48, 166.48,
-                 174.09, 174.09, 174.09, 174.09, 175.0, 175.0, 218.51, 254, 29, 30, 225.07, 241.31]
+        # data = [70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0,
+        #         135.0, 135.0, 135.0, 136.0, 136.0, 136.0, 136.0, 136.0, 136.0, 136.0, 136.0, 136.0, 136.0, 136.0, 136.0,
+        #         136.0, 160.67, 160.67, 160.67, 160.67, 160.67, 162.74, 162.74, 162.74, 162.74, 162.74, 165.82, 165.82,
+        #         166.48, 166.48, 174.09, 174.09, 174.09, 174.09, 175.0, 175.0, 218.51, 218.51, 218.51, 218.51, 225.07,
+        #         241.31]
+        #
+        # data2 = [70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0, 70.0,
+        #          135.0, 135.0, 135.0, 136.0, 136.0, 136.0, 136.0, 136.0, 136.0, 136.0, 136.0, 47, 19, 20, 136.0, 160.67,
+        #          160.67, 160.67, 160.67, 160.67, 162.74, 162.74, 162.74, 162.74, 162.74, 165.82, 165.82, 166.48, 166.48,
+        #          174.09, 174.09, 174.09, 174.09, 175.0, 175.0, 218.51, 254, 29, 30, 225.07, 241.31]
 
         # mpl.use('agg')
+        # mpl.rcParams['boxplot.whiskerprops.linestyle'] = '-'
 
         ax1 = self.figure.add_subplot(111)
+
         c2 = "red"
         c = 'green'
-        box1 = ax1.boxplot([data, data2, data], labels=['kek', 'lol', 'kek'], notch=False, patch_artist=True,
-                           widths=0.3, medianprops=dict(color='white'))
-        gay = True
-        for item in box1['boxes']:
-            if gay:
-                c2 = 'g'
-                gay = False
-            else:
-                c2 = 'r'
-                gay = True
-            item.set(color=c2)
+        # print("_________________")
+        # to_build = []
+        # to_build1 = []
+        # labelList = []
+        # for i in range(len(data.bx)):
+        #     if i%2==0:
+        #         to_build.append(data.bx[i])
+        #     else:
+        #         to_build.append([])
+        # for i in range(len(data.bx1)):
+        #     if i % 2 == 0:
+        #         to_build1.append(data.bx1[i])
+        #     else:
+        #         to_build1.append([])
+        # for i in range(len(data.bx_lab)):
+        #     if i % 2 == 0:
+        #         labelList.append(func.sec_to_time(data.bx_lab[i]))
+        #     else:
+        #         labelList.append("")
 
-        for boi in ['caps', 'whiskers']:
-            count = 1
-            for item in box1[boi]:
-                if count <= 2:
-                    c2 = 'g'
-                elif count <= 4:
-                    c2 = 'r'
-                else:
-                    count = 1
-                count += 1
-                item.set(color=c2)
+        to_build = [List for List in data.bx]
+        to_build1 = [List for List in data.bx1]
 
+        # print(to_build)
+        # print("^^^^^^^^^^")
+        c1 = [0, 1, 0, 0.69]
+        c2 = [1, 0, 0, 0.69]
+        labelList = [func.sec_to_time(sec) for sec in data.bx_lab]
+
+        # print(labelList)
+        # print("HERE____GG", data.bx_lab)
+        print(":: ", len(to_build), len(labelList))
+        s = time()
+        box1 = ax1.boxplot(to_build, positions=np.arange(len(to_build)) - 0.2, labels=labelList, notch=False,
+                           patch_artist=True,
+                           widths=0.3, medianprops=dict(color='white'),
+                           boxprops=dict(facecolor=c1, color=c1),
+                           capprops=dict(color=c1),
+                           whiskerprops=dict(color=c1),
+                           flierprops=dict(color=c1, markeredgecolor=c1),
+                           )
+
+        box2 = ax1.boxplot(to_build1, positions=np.arange(len(to_build1)) + 0.2, labels=labelList, notch=False,
+                           patch_artist=True,
+                           widths=0.3, medianprops=dict(color='white'),
+                           boxprops=dict(facecolor=c2, color=c2),
+                           capprops=dict(color=c2),
+                           whiskerprops=dict(color=c2),
+                           flierprops=dict(color=c2, markeredgecolor=c2)
+                           )
+
+        # mplcursors.cursor(ax1, hover=True)
+        self.figure.autofmt_xdate()
+        # self.figure.tight_layout()
 
         ax1.plot()
-        self.draw_idle()
 
+        self.draw_idle()
+        print("gui go brrr", time() - s)
 
     def plot(self):
 
