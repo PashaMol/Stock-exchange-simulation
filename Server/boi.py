@@ -5,7 +5,7 @@ import csv
 import time
 
 ENABLE_OUTPUT = True
-ENABLE_IPv4 = True
+ENABLE_IPv4 = False
 
 global stats
 global conn, conn1
@@ -73,7 +73,7 @@ def assets_table():
 def send_many(num, li):
   snd(pickle.dumps(num))
   for i in range(num):
-    rec(client_socket)
+    if not rec(client_socket): return False
     go = li[i]
     se = pickle.dumps(go)
     if not snd(se): break
@@ -81,10 +81,10 @@ def send_many(num, li):
 def send_many_box(num, li):
   snd(pickle.dumps(num))
   for i in range(num):
-    rec(client_socket)
+    if not rec(client_socket): return False
     snd(pickle.dumps(len(li[i])))
     for j in range(len(li[i])):
-      rec(client_socket)
+      if not rec(client_socket): return False
       go = li[i][j]
       se = pickle.dumps(go)
       if not snd(se): break
@@ -452,7 +452,7 @@ def update():
 def rec(client_socket):
   start = time.time()
   while True:
-    if time.time()-start >= 0.95:
+    if time.time()-start >= 0.5:
       print("Too much time wasted...")
       return False
     try:
@@ -499,6 +499,7 @@ print(f'Listening for connections on {IP}:{PORT}...')
 
 while True:
   
+  got = False
   server_socket.listen(5)
   client_socket, client_adress = server_socket.accept()
   command = rec(client_socket)
@@ -522,10 +523,10 @@ while True:
   elif command == 'get':
     if ENABLE_OUTPUT: print("Working on \"get\" command.....")
     snd(pickle.dumps('ok'))
-    rr = rec(client_socket)
-    if not rr: continue
-    if ENABLE_OUTPUT: print("Got request: ", rr)
-    c.execute(rr)
+    got = rec(client_socket)
+    if not got: continue
+    if ENABLE_OUTPUT: print("Got request: ", got)
+    c.execute(got)
     ret = c.fetchall()
     send_many(len(ret), ret)
 
@@ -573,20 +574,26 @@ while True:
   elif command == 'delete':
     if ENABLE_OUTPUT: print("Working on \"delete\" command.....")
     snd(pickle.dumps('ok'))
-    login, id = rec(client_socket)
-    if not id: continue
+    got = rec(client_socket)
+    if not got: continue
+    login, id = got
     delete(login, id)
 
   elif command == 'box':
     if ENABLE_OUTPUT: print("Working on \"box\" command.....")
     snd(pickle.dumps('ok'))
-    try: product, buy_sell, L = rec(client_socket)
+    try:
+      got = rec(client_socket)
+      if not got: continue
+      product, buy_sell, L = got
     except: continue
     start_end = []
     try:
       for i in range(L):
         snd(pickle.dumps('ok'))
-        start_end.append(rec(client_socket))
+        got = rec(client_socket)
+        if not got: continue
+        start_end.append(got)
     except: continue
     ret = return_box_graph(product, buy_sell, start_end)
     send_many_box(len(ret), ret)
@@ -594,7 +601,10 @@ while True:
   elif command == 'my assets':
     if ENABLE_OUTPUT: print("Working on \"my assets\" command.....")
     snd(pickle.dumps('ok'))
-    try: login, password = rec(client_socket)
+    try:
+      got = rec(client_socket)
+      if not got: continue
+      login, password = got
     except: continue
     ret = my_assets(login, password)
     send_many(len(ret), ret)
@@ -602,37 +612,47 @@ while True:
   elif command == 'bug':
     if ENABLE_OUTPUT: print("Working on \"bug\" command.....")
     snd(pickle.dumps('ok'))
-    try: ret = rec(client_socket)
+    try:
+      got = rec(client_socket)
+      if not got: continue
     except: continue
-    bug_log(ret)
+    bug_log(got)
 
   elif command == 'register':
         if ENABLE_OUTPUT: print("Working on \"register\" command.....")
         snd(pickle.dumps("ok"))
-        login, password = rec(client_socket)
+        got = rec(client_socket)
+        if not got: continue
+        login, password = got
         snd(pickle.dumps(register(login, password)))
   elif command == 'get balance':
         if ENABLE_OUTPUT: print("Working on \"get balance\" command.....")
         snd(pickle.dumps("ok"))
-        login = rec(client_socket)
-        snd(pickle.dumps(get_balance(login)))
+        got = rec(client_socket)
+        if not got: continue
+        snd(pickle.dumps(get_balance(got)))
 
   elif command == 'get id':
         if ENABLE_OUTPUT: print("Working on \"get id\" command.....")
         snd(pickle.dumps("ok"))
-        login = rec(client_socket)
-        snd(pickle.dumps(get_id(login)))
+        got = rec(client_socket)
+        if not got: continue
+        snd(pickle.dumps(get_id(got)))
 
   elif command == 'known user':
         if ENABLE_OUTPUT: print("Working on \"known user\" command.....")
         snd(pickle.dumps("ok"))
-        login, password = rec(client_socket)
+        got = rec(client_socket)
+        if not got: continue
+        login, password = got
         snd(pickle.dumps(find(login, password)))
 
   elif command == 'get history':
         if ENABLE_OUTPUT: print("Working on \"get history\" command.....")
         snd(pickle.dumps("ok"))
-        login, password = rec(client_socket)
+        got = rec(client_socket)
+        if not got: continue
+        login, password = got
         if not find(login, password): snd(pickle.dumps(False))
         ret = return_history(login)
         send_many(len(ret), ret)
@@ -640,7 +660,9 @@ while True:
   elif command == 'delete history':
         if ENABLE_OUTPUT: print("Working on \"delete history\" command.....")
         snd(pickle.dumps("ok"))
-        login, password = rec(client_socket)
+        got = rec(client_socket)
+        if not got: continue
+        login, password = got
         ret = delete_history(login, password)
         snd(pickle.dumps(ret))
 
@@ -648,7 +670,9 @@ while True:
     if ENABLE_OUTPUT: print("Working on \"stats\" command.....")
     snd(pickle.dumps('ok'))
     try:
-      got, time_start, time_end, type = rec(client_socket)
+      got = rec(client_socket)
+      if not got: continue
+      got, time_start, time_end, type = got
     except : continue
     if ENABLE_OUTPUT: print("Got request: ", got, time_start, time_end)
     ret = return_stats(got, time_start, time_end, type)
@@ -657,19 +681,25 @@ while True:
   elif command == 'add star':
     if ENABLE_OUTPUT: print("Working on \"add star\" command.....")
     snd(pickle.dumps("ok"))
-    what, login, password = rec(client_socket)
+    got = rec(client_socket)
+    if not got: continue
+    what, login, password = got
     add_star(what, login, password)
     
   elif command == 'remove star':
     if ENABLE_OUTPUT: print("Working on \"remove star\" command.....")
     snd(pickle.dumps("ok"))
-    what, login, password = rec(client_socket)
+    got = rec(client_socket)
+    if not got: continue
+    what, login, password = got
     remove_star(what, login, password)
 
   elif command == 'get stars':
     if ENABLE_OUTPUT: print("Working on \"get stars\" command.....")
     snd(pickle.dumps("ok"))
-    login, password = rec(client_socket)
+    got = rec(client_socket)
+    if not got: continue
+    login, password = got
     ret = get_stars(login, password)
     send_many(len(ret), ret)
   else:
