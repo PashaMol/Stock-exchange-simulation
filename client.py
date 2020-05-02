@@ -107,7 +107,9 @@ def get_id(login):
 def rec(client_socket):
   start = time.time()
   while True:
-    if time.time()-start >= 1: return False
+    if time.time()-start >= 0.5:
+      client_socket.close()
+      return False
     try:
       temp = pickle.loads(client_socket.recv(1024))
       return temp
@@ -245,7 +247,18 @@ def my_assets(login, password):
 #print(register("TEST2", "1234"))
 #print(bug_log("Nice. EPIC TEST"))
 #print(process( ['Na', 'Limit', 'buy', 'PoniesCo', '1', '70'] , "TEST", "1234" ))
-#print(process( ['Noice', 'Limit', 'buy','1234', '20', '1'] , "TEST2", "1234" ))
+
+#print(delete('TEST', 1588266625.5560997))
+
+######
+#print(process( ['Noice', 'Limit', 'sell','GasTm69', '5', '100'] , "TST1", "1234" ))
+#print(process( ['Noice', 'Limit', 'buy','GasTm69', '20', '100'] , "TEST2", "1234" ))
+#print(delete("TEST2", 1588441641.1346366))
+######
+
+#1588431086.958449
+#print(get_id('TEST2'))
+
 
 #print(register('pasham999', '1234'))
 #print(get_balance('Nigga9'))

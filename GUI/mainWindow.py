@@ -32,21 +32,21 @@ if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
 
 
 class MyThread(QThread):
-    try:
-        # Create a counter thread
-        change_value = pyqtSignal(int)
-        timeToSleep = pyqtSignal(int)
-        def run(self):
-            try:
-                cnt = 0
-                while True:
-                    #cnt += 1
-                    #print(cnt)
-                    time.sleep(self.timeToSleep)
-                    self.change_value.emit(cnt)
-            except:
-                print("MyThread error")
-    except: pass
+        try:
+            # Create a counter thread
+            change_value = pyqtSignal(int)
+            timeToSleep = pyqtSignal(int)
+            def run(self):
+                try:
+                    cnt = 0
+                    while True:
+                        #cnt += 1
+                        #print(cnt)
+                        time.sleep(self.timeToSleep)
+                        self.change_value.emit(cnt)
+                except:
+                    print("MyThread error")
+        except: pass
 
 
 
@@ -86,7 +86,7 @@ class MainWindow(QDialog):
 
         customTheme()
 
-        #data.pref_prd = list(client.get_stars(data.username, data.password))      # TODO UNCOMMENT
+        data.pref_prd = list(client.get_stars(data.username, data.password))      # TODO UNCOMMENT
         #print(client.get_stars(data.username, data.password))
 
         self.groupBox.setLayout(self.formLayout)
@@ -945,6 +945,23 @@ class MainWindow(QDialog):
        # print(data.system_ord)
         self.reloadData()
 
+    def closeEvent(self, event):
+        # do stuff
+        print("Goodbye")
+        #exit()                        # TODO приложение работает в фоновом режиме даже после закрытия
+        self.thread.terminate()
+        self.thread1.terminate()
+        self.thread2.terminate()
+        self.thread3.terminate()
+        self.thread4.terminate()
+        #exit()
+        print("BYE")
+
+        # if True:
+        #     event.accept()  # let the window close
+        # else:
+        #     event.ignore()
+
 
 
 
@@ -1002,18 +1019,23 @@ def runGUI():
     App.setStyle('Fusion')
 
     window = MainWindow()
+
+
     sys.exit(App.exec())
+
 
 if __name__ == '__main__':
     try:
-
         data.working_time = time.time()
         runGUI()
         App = QApplication(sys.argv)
         App.setStyle('Fusion')
 
         window = MainWindow()
+        print("APP CLOSES")
+       # exit()
         sys.exit(App.exec())
+
     except Exception as F:
         print(F)
 

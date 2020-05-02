@@ -197,7 +197,6 @@ class CanvasUp(FigureCanvas):
             c2 = "red"
 
             if data.mode == "Dark":
-                print("switched dark")
                 c1 = lighten_color("lime",0.7)
                 c2 = lighten_color("red",0.9)
 
@@ -281,12 +280,12 @@ class CanvasUp(FigureCanvas):
 
             ax = self.figure.add_subplot(111)
             ax.set_ylim([0, max(y1)*1.15])
-
+            c1 = 'tab:green'
 
             self.figure.text(0.5, 0.5, f'{data.graphsData[0][0]}', transform=ax.transAxes,
                              fontsize=40, color='gray', alpha=0.5,
                              ha='center', va='center')
-            ax.fill_between(x1, y1=y1, label='psavert', alpha=0.5, color='tab:green', linewidth=2)
+            ax.fill_between(x1, y1=y1, label='psavert', alpha=0.5, color=c1, linewidth=2)
             if len(x1)>10:
                 ax.set_xticks(ax.get_xticks()[::len(x1)//20])
                 self.figure.autofmt_xdate()
@@ -504,6 +503,7 @@ class CanvasLow(FigureCanvas):
         print("gui go brrr", time() - s )
 
 
+
     def no_data(self):
         ax = self.figure.add_subplot(111)
 
@@ -583,6 +583,8 @@ class CanvasLow(FigureCanvas):
             cursor.connect('add', show_annotationUP)
             ax.grid()
             self.draw_idle()
+
+
 
         except:
             ax = self.figure.add_subplot(111)

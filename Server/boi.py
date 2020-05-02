@@ -53,7 +53,10 @@ def stars_table():
   st.execute("CREATE TABLE IF NOT EXISTS stars(login TEXT, what TEXT)")
 
 def debts_table():
-  d.execute("CREATE TABLE IF NOT EXISTS debts(login TEXT, debt REAL, id REAL)")
+  d.execute("CREATE TABLE IF NOT EXISTS debts(login TEXT, debt REAL, id REAL, uid REAL)")
+
+def a_debts_table():
+  ad.execute("CREATE TABLE IF NOT EXISTS a_debts(asset TEXT, debt REAL, id REAL, uid REAL)")
 
 def history_table():
   h.execute("CREATE TABLE IF NOT EXISTS history(login TEXT, product TEXT, amount REAL, price REAL, type TEXT)")
@@ -173,7 +176,7 @@ def return_stats(product, time_start, time_end, type):
   try:
     s.execute(f"SELECT * FROM stats WHERE product = '{product}' AND type = '{type}' AND time >= {time_start} AND time <= {time_end}")
   except Exception as ex:
-    print(ex)
+    print("EXCEPTION:",ex)
     return [{}]
   return s.fetchall()
 
@@ -183,23 +186,52 @@ def show_selected(ss):
     print(i)
   print()
 
-def return_debt(login, id):
-  d.execute(f"SELECT * FROM debts WHERE id = {id}")
-  substract(False, d.fetchall()[0][1], login)
-  d.execute(f"DELETE FROM debts WHERE id = {id}")
+def return_debt(login, uid, id):
+  print(f"Returning debt to {login}...")
+  d.execute(f"SELECT * FROM debts WHERE id = {id} and uid = {uid}")
+  try: 
+    substract(False, d.fetchall()[0][1], login)
+  except: pass
+  d.execute(f"DELETE FROM debts WHERE id = {id} and uid = {uid} and id = {id}")
 
-def sub_from_debt(id, sub):
-  d.execute(f"SELECT * FROM debts WHERE id = {id}")
+def return_a_debt(id, uid):
+  ad.execute(f"SELECT * FROM a_debts WHERE id = {id}")
+  try:
+    add_asset(uid, ad.fetchall()[0][0], ad.fetchall()[0][1])
+  except: pass
+  ad.execute(f"DELETE FROM a_debts WHERE id = {id}")
+
+def sub_from_debt(uid, id, sub):
+  print(f"Subing {sub} debt from {uid}, id = {id}...") 
+  d.execute(f"SELECT * FROM debts WHERE uid = {uid} AND id = {id}")
   try:
     fet = d.fetchall()[0][1]
   except:
-    return
-  if fet - sub <= 0: d.execute(f"DELETE FROM debts WHERE id = {id}")
-  else: d.execute(f"UPDATE debts SET debt = {fet - sub}")
+    return False
+  if fet - sub <= 0: d.execute(f"DELETE FROM debts WHERE uid = {uid} AND id = {id}")
+  else: d.execute(f"UPDATE debts SET debt = {fet - sub} WHERE uid = {uid} AND id = {id}")
+  return True
 
-def add_debt(login, id, add):
-  d.execute(f"INSERT INTO debts VALUES('{login}', {add}, {id})")
+def sub_from_a_debt(uid, id, sub, asset):
+  ad.execute(f"SELECT * FROM a_debts WHERE uid = {uid} AND asset = '{asset}' AND id = {id}")
+  try:
+    fet = ad.fetchall()[0][1]
+  except:
+    return False
+  if fet - sub <= 0: ad.execute(f"DELETE FROM a_debts WHERE uid = {uid} AND asset = '{asset}' AND id = {id}")
+  else: ad.execute(f"UPDATE a_debts SET debt = {fet - sub} WHERE uid = {uid} AND asset = '{asset}' AND id = {id}")
+  return True
 
+def add_debt(login, uid, id, add):
+  print(f"Adding debt to {login}, amount: {add}")
+  if not sub_from_debt(uid, id, -1*add):
+    print("NEW DEBT")
+    d.execute(f"INSERT INTO debts VALUES('{login}', {add}, {id}, {uid})")
+
+def add_a_debt(asset, uid, reqid, add):
+  if not sub_from_a_debt(uid, reqid, -1*add, asset):
+    ad.execute(f"INSERT INTO a_debts VALUES('{asset}', {add}, {reqid}, {uid})")
+  
 def find(login, password):
     if not password:
       u.execute(f"SELECT * FROM users WHERE login = '{login}'") 
@@ -243,10 +275,11 @@ def print_table():
   #show_selected(s)
 
 
-def delete(login, id):
+def delete(login, id, uid):
   try:
     c.execute("DELETE FROM orders WHERE reqid =" + "\'" + str(id) + "\'")
-    return_debt(login, id)
+    return_debt(login, uid, id)
+    return_a_debt(id, uid)
   except:
     pass
 
@@ -279,8 +312,10 @@ def substract(buy, total, login):
   u.execute(f"UPDATE users SET balance = {bal+total} WHERE login = '{login}'")
 
 def does_have(id, product, amount):
-  a.execute(f"SELECT * FROM assets WHERE product = '{product}' AND uid = {id}")
-  if len(c.fetchall()) != 0:
+  a.execute(f"SELECT * FROM assets WHERE product = '{product}' AND uid = {id} AND amount >= {amount}")
+  kkk = a.fetchall()
+  #print(kkk)
+  if len(kkk) != 0:
     return True
   return False
 
@@ -351,9 +386,10 @@ def process(b, login, password):
         total += q * i[6]
         transaction_list.insert(list_counter, [reqid, i[0], float(uid), i[7], q, q * i[6]])
         add_to_buffer(['update', reqid, i[5]-q])
+        sub_from_a_debt(i[7] , i[0], q, i[4])
         c.execute("UPDATE orders SET amount = '" + str(i[5] - q) + "' WHERE reqid =" + "\'" + str(i[0]) + "\'")
         if not mm: add_asset(uid, product, float(amount))
-        add_asset(i[7], product, -1*float(amount))
+        #add_asset(i[7], product, -1*float(amount))
         add_history(login, product, q, q*i[6], "buy")
         q = 0
         list_counter += 1
@@ -364,16 +400,17 @@ def process(b, login, password):
         transaction_list.insert(list_counter, [reqid, i[0], float(uid), i[7], i[5], i[5] * i[6]])
         add_to_buffer(['delete', reqid])
         c.execute("DELETE FROM orders WHERE reqid =" + "\'" + str(i[0]) + "\'")
+        sub_from_a_debt(i[7] , i[0], i[5], i[4])
         #c.execute(f"SELECT * FROM orders WHERE reqid = {i[0]}")
         #if c.fetchall()[0][7] == min_sell_d[product]: min_sell_d[prroduct] = min_sell(product)
         if not mm: add_asset(uid, product, i[5])
-        add_asset(i[7], product, -1*i[5])
+        #add_asset(i[7], product, -1*i[5])
         add_history(login, product, i[5], i[5]*i[6], "buy")
         calc_average(product, -1*i[6], 'sell')   #Do we need that?
         box_graph(product, 'sell')
         list_counter += 1
     if q != 0 and limit:
-      if not mm: add_debt(login, reqid, q*price)
+      if not mm: add_debt(login, uid, reqid, q*price)
       if not mm: substract(True, q*price, login)
       add_to_buffer(['add', reqid, from_u, b[1] ,b[2], product, str(q), price, uid])
       c.execute("INSERT INTO orders VALUES(" + str(reqid) + ", '" + str(from_u) + "', '" + b[1] + "', '" + b[2] + "', '" + product + "', " + str(q) + ", " + str(price) + ", " + str(uid) + ")")
@@ -389,9 +426,16 @@ def process(b, login, password):
   else:
     c.execute("SELECT * FROM orders WHERE request = 'buy' AND product = " + "\'" + product + "\'" + " AND price >= " + str(price) + " ORDER BY price DESC")
     for i in c.fetchall():
-      if from_u == i[0] : continue
+      if from_u == i[1] : continue
       if q == 0:
         break
+      '''
+      ad.execute(f"SELECT * FROM a_debts WHERE id = {i[0]}")
+      deb = 0
+      try:
+        deb = ad.fetchall()[0][1]
+      except Exception as E: print("EXCEPTION:", E)
+      '''
       if i[5] > q:
         total += q * i[6]
         transaction_list.insert(list_counter, [i[0], reqid, i[7], float(uid), q, q * i[6]])
@@ -400,7 +444,7 @@ def process(b, login, password):
         if not mm: add_asset(uid, product, -1*float(amount))
         add_asset(i[7], product, float(amount))
         add_history(login, product, q, q*i[6], "sell")
-        sub_from_debt(i[0], q*i[6])
+        sub_from_debt(i[7], i[0], q*i[6])
         q = 0
         list_counter += 1
         break
@@ -415,23 +459,28 @@ def process(b, login, password):
         if not mm: add_asset(uid, product, -1*i[5])
         add_asset(i[7], product, i[5])
         add_history(login, product, i[5], i[5]*i[6], "sell")
-        sub_from_debt(i[0], i[5]*i[6])
+        sub_from_debt(i[7], i[0], i[5]*i[6])
         calc_average(product, -1*i[6], 'buy')    #Do we need that?
         box_graph(product, 'buy')
         list_counter += 1
-
+    if q != 0 and not mm:
+        add_a_debt(product, uid, reqid, q)
+        a.execute(f"SELECT * FROM assets WHERE uid = {uid} AND product = '{product}'")
+        prev = a.fetchall()[0][2]
+        a.execute(f"UPDATE assets SET amount = {prev - q} WHERE uid = {uid} AND product = '{product}'")
+        
     if q != 0 and limit:
-      c.execute(f"INSERT INTO orders VALUES({reqid}, '{from_u}', '{b[1]}', '{b[2]}', '{product}', {q}, {price}, {uid})")
-      add_to_buffer(['add', reqid, from_u, b[1] ,b[2], product, str(q), price, uid])
-      calc_average(product, price, 'sell')    #Do wee need that?
-      box_graph(product, 'sell')
-      '''
-      try:
-        if price < min_sell_d[product]:
-          min_sell_d[product] = price
-      except:
-        min_sell_d[product] = min_sell(product)
-      '''
+        c.execute(f"INSERT INTO orders VALUES({reqid}, '{from_u}', '{b[1]}', '{b[2]}', '{product}', {q}, {price}, {uid})")
+        add_to_buffer(['add', reqid, from_u, b[1] ,b[2], product, str(q), price, uid])
+        calc_average(product, price, 'sell')    #Do wee need that?
+        box_graph(product, 'sell')
+        '''
+        try:
+          if price < min_sell_d[product]:
+            min_sell_d[product] = price
+        except:
+          min_sell_d[product] = min_sell(product)
+        '''
       
   if not mm: substract(buy, total, login)
   # print()
@@ -467,7 +516,7 @@ server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
 server_socket.bind((IP, PORT))
 
-global u, conn3, a, conn4, d, conn5, h, conn6, st, conn7
+global u, conn3, a, conn4, d, conn5, h, conn6, st, conn7, ad, conn8
 conn3 = sqlite3.connect('users.db')
 u = conn3.cursor()
 create_table_users()
@@ -485,6 +534,8 @@ conn6 = sqlite3.connect('history.db')
 h = conn6.cursor()
 conn7 = sqlite3.connect('stars.db')
 st = conn7.cursor()
+conn8 = sqlite3.connect('a_debts.db')
+ad = conn8.cursor()
 
 stars_table()
 debts_table()
@@ -494,6 +545,7 @@ create_table()
 box_table()
 assets_table()
 stats = {}
+a_debts_table()
 print(f'Listening for connections on {IP}:{PORT}...')
 
 
@@ -553,11 +605,11 @@ while True:
       if ENABLE_OUTPUT: print("Wrong login/password combination.....")
       snd(pickle.dumps([False]))
       continue
-    if float(got[4])*float(got[5]) > get_balance(login):
+    if float(got[4])*float(got[5]) > get_balance(login) and got[3] == buy:
       if ENABLE_OUTPUT: print("Not enough money.....")
       snd(pickle.dumps([False]))
       continue
-    if got[3] == 'sell' and not does_have(get_id(login), got[3], got[4]):
+    if got[2] == 'sell' and not does_have(get_id(login), got[3], got[4]):
       if ENABLE_OUTPUT: print("Not enough assets.....")
       snd(pickle.dumps([False]))
       continue
@@ -577,7 +629,7 @@ while True:
     got = rec(client_socket)
     if not got: continue
     login, id = got
-    delete(login, id)
+    delete(login, id, get_id(login))
 
   elif command == 'box':
     if ENABLE_OUTPUT: print("Working on \"box\" command.....")
@@ -645,7 +697,9 @@ while True:
         got = rec(client_socket)
         if not got: continue
         login, password = got
-        snd(pickle.dumps(find(login, password)))
+        pr = find(login, password)
+        #print(pr)
+        snd(pickle.dumps(pr))
 
   elif command == 'get history':
         if ENABLE_OUTPUT: print("Working on \"get history\" command.....")
@@ -713,4 +767,5 @@ while True:
   conn5.commit()
   conn6.commit()
   conn7.commit()
+  conn8.commit()
   print(f"Request completed in {time.time() - start} seconds.....  {len(update())}")

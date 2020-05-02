@@ -77,11 +77,10 @@ class Ui_Dialog(object):
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
-        # self.thread = MyThread()  # time
-        # self.thread.timeToSleep = 3600
-        # self.thread.change_value.connect(lambda: functions.getNews())
-        # self.thread.change_value.connect(lambda: test())
-       # self.thread.start()                                                              # TODO START IT
+        self.thread = MyThread()  # time
+        self.thread.timeToSleep = 3600
+        self.thread.change_value.connect(lambda: functions.getNews())
+        self.thread.start()                                                              # TODO START IT
 
     def callRegWin(self):
         self.Dialog = QtWidgets.QDialog()
@@ -143,6 +142,7 @@ class Ui_Dialog(object):
             except:
                 print("Error while starting app")
                 self.clearWin()
+                self.closewin()
                 #self.Dialog.close()
         else:
             self.infLabel.setText("Error. Try Again!")
@@ -181,12 +181,16 @@ class Ui_Dialog(object):
                 #mainWindow.runGUI()
             except:
                 print("Error while starting app")
-
+                self.clearWin()
+                self.closewin()
                 #self.Dialog.close()
         else:
             self.infLabel.setText("Error. Try Again!")
 
         return
+
+    def closewin(self):
+        self.thread.terminate()
 
 
 
