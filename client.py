@@ -259,13 +259,16 @@ def my_assets(login, password):
 #1588431086.958449
 #print(get_id('TEST2'))
 
+#print(stats('GasTm', 0, 9999999999999999, 'buy'))
+
 
 #print(register('pasham999', '1234'))
 #print(get_balance('Nigga9'))
 #print(known_user("TEST", False))
 #print(my_assets("TEST", "1234"))
 #print(get_history("TEST", "1234"))
-#print(remove_star(['boi'], 'TEST', 1234))
+#print(add_star(['kek','nice','ass','nigga','BRUH'], 'TEST', '1234'))
+#print(remove_star(['nigga','nigga','faggot','BRUH','ALLAH'], 'TEST', '1234'))
 #print(box_graph('GasTm', 'buy', [[0, 15865453900.99], [0, 15865453900.99]]))
 #print(delete_history('TEST', '1234'))
     

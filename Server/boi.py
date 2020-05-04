@@ -174,7 +174,7 @@ def calc_average(product, new, buy_sell):
 
 def return_stats(product, time_start, time_end, type):
   try:
-    s.execute(f"SELECT * FROM stats WHERE product = '{product}' AND type = '{type}' AND time >= {time_start} AND time <= {time_end}")
+    s.execute(f"SELECT price, time FROM stats WHERE product = '{product}' AND type = '{type}' AND time >= {time_start} AND time <= {time_end}")
   except Exception as ex:
     print("EXCEPTION:",ex)
     return [{}]
