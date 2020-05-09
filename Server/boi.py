@@ -546,6 +546,7 @@ box_table()
 assets_table()
 stats = {}
 a_debts_table()
+socket.settimeout(0.5)
 print(f'Listening for connections on {IP}:{PORT}...')
 
 
