@@ -546,7 +546,7 @@ box_table()
 assets_table()
 stats = {}
 a_debts_table()
-socket.settimeout(0.5)
+
 print(f'Listening for connections on {IP}:{PORT}...')
 
 
@@ -555,6 +555,8 @@ while True:
   got = False
   server_socket.listen(5)
   client_socket, client_adress = server_socket.accept()
+  #server_socket.settimeout(0.5)
+  client_socket.settimeout(0.5)
   command = rec(client_socket)
   if not command: continue
   start = time.time()
