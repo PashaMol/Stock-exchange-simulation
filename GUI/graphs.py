@@ -160,6 +160,7 @@ class CanvasUp(FigureCanvas):
 
         try:
             if len(data.graphsData) * len(data.graphsData_1)!= 0:
+
                 XY = func.getXY(data.graphsData)
                 XY1 = func.getXY(data.graphsData_1)
                 x1 = XY[0]
@@ -189,7 +190,7 @@ class CanvasUp(FigureCanvas):
             ax = self.figure.add_subplot(111)
             ax.set_ylim([0, max(max(y1), max(y2)) * 1.15])
 
-            self.figure.text(0.5, 0.5, f'{data.graphsData_1[0][0]}', transform=ax.transAxes,
+            self.figure.text(0.5, 0.5, f'{data.chosen_prd}', transform=ax.transAxes,
                              fontsize=40, color='gray', alpha=0.5,
                              ha='center', va='center')
 
@@ -262,7 +263,7 @@ class CanvasUp(FigureCanvas):
                 # print(y1)
                # print(data.graphsData)
                 #print()
-                lab = "    " + str(data.graphsData[0][0] + "    " + data.graphsData[0][-1])
+                lab = "    " + data.chosen_prd + "    " + "BUY"
             else:
                 lab = ""
                # x1   = np.arange(0.0, 2.0, 0.21)
@@ -282,7 +283,7 @@ class CanvasUp(FigureCanvas):
             ax.set_ylim([0, max(y1)*1.15])
             c1 = 'tab:green'
 
-            self.figure.text(0.5, 0.5, f'{data.graphsData[0][0]}', transform=ax.transAxes,
+            self.figure.text(0.5, 0.5, data.chosen_prd, transform=ax.transAxes,
                              fontsize=40, color='gray', alpha=0.5,
                              ha='center', va='center')
             ax.fill_between(x1, y1=y1, label='psavert', alpha=0.5, color=c1, linewidth=2)
@@ -476,7 +477,7 @@ class CanvasLow(FigureCanvas):
         #print(labelList)
         #print("HERE____GG", data.bx_lab)
         print(":: ", len(to_build), len(labelList))
-        s = time()
+
         box1 = ax1.boxplot(to_build, positions= np.arange(len(to_build))-0.2 ,  labels=labelList_emp, notch=False, patch_artist=True,
                            widths=0.3, medianprops=dict(color='white'),
                            boxprops=dict(facecolor=c1, color=c1),
@@ -532,7 +533,7 @@ class CanvasLow(FigureCanvas):
 
     def plot(self):
 
-
+        #print("graphs go brrrrr: ",data.graphsData_1)
         try:
             if len(data.graphsData_1)!=0:
                 XY = func.getXY(data.graphsData_1)
@@ -544,13 +545,13 @@ class CanvasLow(FigureCanvas):
                 # for i in range(len(x1)):
                 #     x1[i] = func.getTime(x1[i])
 
-                # print("X:")
+                # print("X:", len(x1) )
                 # print(x1)
-                # print("Y:")
+                # print("Y:", len(y1) )
                 # print(y1)
                # print(data.graphsData)
                 #print()
-                lab = "    " + str(data.graphsData_1[0][0] + "    " + data.graphsData_1[0][-1])
+                lab = "    " + data.chosen_prd + "    " + "SELL"
             else:
                 lab = ""
                # x1   = np.arange(0.0, 2.0, 0.21)
@@ -570,7 +571,7 @@ class CanvasLow(FigureCanvas):
             ax.set_ylim([0, max(y1)*1.15])
 
 
-            self.figure.text(0.5, 0.5, f'{data.graphsData_1[0][0]}', transform=ax.transAxes,
+            self.figure.text(0.5, 0.5, data.chosen_prd, transform=ax.transAxes,
                              fontsize=40, color='gray', alpha=0.5,
                              ha='center', va='center')
             ax.fill_between(x1, y1=y1, label='psavert', alpha=0.5, color='tab:red', linewidth=2)

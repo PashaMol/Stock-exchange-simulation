@@ -7,7 +7,7 @@ def fill_demo(tm0, prd):
     #return
     for i in range(0,25):
         t = tm0 + i * 3600 + 50
-        for j in range(100):
+        for j in range(7):
             b = int(random.random()*100)
             e = b + int(random.random()*200) + 1
             print(b,e)
@@ -18,7 +18,7 @@ def fill_demo(tm0, prd):
 def read():
     conn = sqlite3.connect('C:/coding/projServer/box.db')
     c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS "box" (
+    c.execute('''CREATE TABLE IF NOT EXISTS "box" ( 
 	"product"	TEXT,
 	"price"	REAL,
 	"time"	REAL,

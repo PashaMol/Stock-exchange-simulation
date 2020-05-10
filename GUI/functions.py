@@ -140,6 +140,12 @@ def getRandUnix():
     return float(time.time())*t
 
 
+def log_text_format(text):
+    output = "At " + time.strftime("%H:%M:%S %b %d %Y") + "\n"
+    output += "From " + data.username + " " + data.userid + "\n"
+    output += "Text:\n" + text + "\n\n\n"
+    return output
+
 
 def fill_demo():
     conn = sqlite3.connect('orders.db')
@@ -176,8 +182,9 @@ def getXY(rett):
     X = []
     Y = []
     for i in range(len(rett)):
-        X.insert(i, getTime(rett[i][2]))
-        Y.insert(i, rett[i][1])
+        X.insert(i, getTime(rett[i][1]))
+        Y.insert(i, rett[i][0])
+
     return (X, Y)
 
 

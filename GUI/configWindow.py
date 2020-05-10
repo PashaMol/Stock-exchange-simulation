@@ -130,6 +130,7 @@ class Ui_DialogConfig(object):
 
 
 
+
         tab4 = QWidget()
         tab4.layout = QVBoxLayout(tab4)
         tabs.addTab(tab4, "Products")
@@ -180,7 +181,8 @@ class Ui_DialogConfig(object):
             text = space.toPlainText()
             sendBag.setText("DONE")
             sendBag.setDisabled(True)
-            bug_log(text)
+
+            bug_log(func.log_text_format(text))
 
 
 
@@ -219,7 +221,7 @@ class Ui_DialogConfig(object):
         #         groupBox0.setTitle("Your Graphs:     Click to delete from Your Graphs.")
         def remove_prd(index):
             print("DLETE THIS NIBO", data.pref_prd[index])
-            client.remove_star(data.pref_prd[index], data.username, data.password)
+            client.remove_star([data.pref_prd[index]], data.username, data.password)
             del data.pref_prd[index]
             for i in reversed(range(formLayout1.count())):
                 formLayout1.itemAt(i).widget().deleteLater()
@@ -240,6 +242,8 @@ class Ui_DialogConfig(object):
             data.joinG = [True, False]
         else:
             data.joinG = [False, False]
+
+
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate

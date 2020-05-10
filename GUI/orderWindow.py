@@ -7,6 +7,7 @@ import engine
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import pyqtSlot, Qt
 import client
+from time import time
 from PyQt5.QtWidgets import QApplication, QDialog
 from PyQt5.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout,QHBoxLayout, QGroupBox, QLabel, QPushButton, QFormLayout, QCheckBox,QComboBox
 
@@ -59,13 +60,19 @@ class Ui_DialogOrder(object):
         MainLayout.addWidget(statusLabel)
         MainLayout.addWidget(resLabel)
 
-
+        self.time_to_sleep = 0 # does not allow to make orders often
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
 
         def runEngine():
+            statusLabel.setText("")
+            resLabel.setText("")
+            if time() - self.time_to_sleep < 5:
+                statusLabel.setText("To many requests")
+                return
+
             ordtype = ordertype.currentText()
             amt = amount.text()
             prc = price.text()
@@ -122,7 +129,7 @@ class Ui_DialogOrder(object):
                 data.system_ord.append(req[2:])
             else:
                 statusLabel.setText("Fail")
-
+            self.time_to_sleep = time()
 
 
     def retranslateUi(self, Dialog):

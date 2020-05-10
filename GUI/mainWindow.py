@@ -243,6 +243,9 @@ class MainWindow(QDialog):
         shortcut0 = QShortcut(QtGui.QKeySequence("0"), self)
         shortcut0.activated.connect(lambda: change_prd_keyboard(0))
 
+        shortcutR = QShortcut(QtGui.QKeySequence("F5"), self)
+        shortcutR.activated.connect(lambda: self.reloading())
+
             ##
 
         leftArea.addLayout(BuySell)
@@ -606,6 +609,7 @@ class MainWindow(QDialog):
 
 
     def reloading(self):
+        print("__reloading__")
         try:
             if data.joinG[0] == True and data.joinG[1] == True and data.sleep == 0:
                 data.zoom1 = data.zoom
@@ -650,23 +654,29 @@ class MainWindow(QDialog):
         try:
             if self.MainProduct.currentText() != "No filter":
 
-                self.reloading()
+
 
                 self.graph1.clear()
                 if data.joinG[0] == True and data.joinG[1] == True:
+                    self.sliderUP.setHidden(True)
                     self.graph1.plot_joint()
                 else:
+                    self.sliderUP.setHidden(False)
+                    self.reloading()
                     self.graph1.plot()
 
 
 
+
                 if data.joinG[0] == True and data.joinG[1] == True:
+
                     if data.box_reload < 1:
+                        self.sliderDOWN.setHidden(True)
                         self.graph2.clear()
                         self.graph2.candels()
-                        self.sliderDOWN.setHidden(True)
                         data.box_reload +=1
                 else:
+                    #self.reloading()
                     self.graph2.clear()
                     self.graph2.plot()
                     self.sliderDOWN.setHidden(False)
@@ -680,6 +690,7 @@ class MainWindow(QDialog):
 
 
     def prdChanged(self):
+        data.chosen_prd = self.MainProduct.currentText()
         data.box_reload = 0
         self.sliderChanged1()
         self.sliderChanged2()

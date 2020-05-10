@@ -65,13 +65,16 @@ class Ui_DialogAssets(object):
        # print("user assetss", user_assets)
         font_ = QtGui.QFont("Times", 20)
         for asset in user_assets:
-                thisasset = QLabel()
-                thisasset.setFont(font_)
-                sign = asset[1] + "                          "
-                sign = sign[:20]
-                sign+= "Amount: " + str(int(asset[2]))
-                thisasset.setText(sign)
-                self.formLayout.addRow(thisasset)
+            if int(asset[2]) <= 0:           # TODO UNCOMMENT
+                continue
+            thisasset = QLabel()
+            thisasset.setFont(font_)
+            sign = asset[1] + "                          "
+            sign = sign[:20]
+            sign += "Amount: " + str(int(asset[2]))
+            thisasset.setText(sign)
+            self.formLayout.addRow(thisasset)
+
 
         # for i in range(25):
         #     thisasset = QLabel()
