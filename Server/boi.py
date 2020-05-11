@@ -3,6 +3,7 @@ import pickle
 import sqlite3
 import csv
 import time
+import re
 
 ENABLE_OUTPUT = True
 ENABLE_IPv4 = False
@@ -581,6 +582,14 @@ while True:
     got = rec(client_socket)
     if not got: continue
     if ENABLE_OUTPUT: print("Got request: ", got)
+    k = re.search("update", got, re.I)
+    kl= re.search("delete", got, re.I)
+    try:
+      gg = k.group(0)
+      gg1= k1.group(0)
+      continue
+    except:
+      pass
     c.execute(got)
     ret = c.fetchall()
     send_many(len(ret), ret)
