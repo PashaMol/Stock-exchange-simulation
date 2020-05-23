@@ -86,7 +86,7 @@ mm_client.register('MM')
 
 for i in range(10000):
     for i in range(len(Market)):
-        #time.sleep(1.0)
+        #time.sleep(0.1)
         MarketPrices[i].append(Market[i].GeneratePrice())
         NewQuery = Market[i].GenerateQuery()
         if (NewQuery != "Broke"):

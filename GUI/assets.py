@@ -1,18 +1,10 @@
 
-from PyQt5 import QtCore, QtGui, QtWidgets
 import data
-import functions as func
-import styles
-import engine
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import pyqtSlot, Qt
 import client
 from PyQt5.QtGui import QImage, QPalette, QBrush
 from PyQt5.QtCore import QSize
-from PyQt5.QtGui import QIcon, QPixmap, QBitmap
-from PyQt5.QtGui import QMovie, QPainter, QPixmap
-from PyQt5.QtWidgets import QApplication, QDialog
-from PyQt5.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout,QGridLayout, QHBoxLayout, QGroupBox, QLabel, QPushButton, QFormLayout, QCheckBox,QComboBox
+from PyQt5.QtWidgets import QScrollArea, QGridLayout, QGroupBox, QLabel, QFormLayout
 
 if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
@@ -37,28 +29,28 @@ class Ui_DialogAssets(object):
             palette = QPalette()
             palette.setBrush(QPalette.Window, QBrush(sImage))
             Dialog.setPalette(palette)
-        # else:
-        #     oImage = QImage("background2.jpg")
-        #
-        # sImage = oImage.scaled(QSize(data.orderResolution[0], data.orderResolution[1]))
-        # palette = QPalette()
-        # palette.setBrush(QPalette.Window, QBrush(sImage))
-        # Dialog.setPalette(palette)
+
         else:
-            self.load = QtWidgets.QLabel(Dialog)
-            self.load.setGeometry(0,
-                                  0,
-                                  data.orderResolution[0],
-                                  data.orderResolution[1])
-            #self.load.resize(Dialog.width()+200, Dialog.height())
-           # self.load.setAlignment(Qt.AlignCenter)
-            self.load.setStyleSheet("QLabel  { text-align: center;};")
-            if data.mode != "Dark":
-                movie = QtGui.QMovie("giphy1.gif")
-            else:
-                movie = QtGui.QMovie("giphy1.gif")
-            self.load.setMovie(movie)
-            movie.start()
+
+            oImage = QImage("background2.jpg")
+            sImage = oImage.scaled(QSize(data.orderResolution[0], data.orderResolution[1]))
+            palette = QPalette()
+            palette.setBrush(QPalette.Window, QBrush(sImage))
+            Dialog.setPalette(palette)
+            # THIS SETS GIF AS A BACKGROUND
+            # self.load = QtWidgets.QLabel(Dialog)
+            # self.load.setGeometry(0,
+            #                       0,
+            #                       data.orderResolution[0],
+            #                       data.orderResolution[1])
+            #
+            # self.load.setStyleSheet("QLabel  { text-align: center;};")
+            # if data.mode != "Dark":
+            #     movie = QtGui.QMovie("giphy1.gif")
+            # else:
+            #     movie = QtGui.QMovie("giphy1.gif")
+            # self.load.setMovie(movie)
+            # movie.start()
 
 
         user_assets = client.my_assets(data.username, data.password)
@@ -69,19 +61,13 @@ class Ui_DialogAssets(object):
                 continue
             thisasset = QLabel()
             thisasset.setFont(font_)
-            sign = asset[1] + "                          "
-            sign = sign[:20]
+            sign = asset[1] + "\t\t"
             sign += "Amount: " + str(int(asset[2]))
             thisasset.setText(sign)
             self.formLayout.addRow(thisasset)
 
 
-        # for i in range(25):
-        #     thisasset = QLabel()
-        #     thisasset.setFont(font_)
-        #     sign = f"test {i}"
-        #     thisasset.setText(sign)
-        #     self.formLayout.insertRow(1, thisasset)
+
 
         self.groupBox.setLayout(self.formLayout)
         scroll = QScrollArea()

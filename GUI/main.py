@@ -1,5 +1,5 @@
 from entrance import *
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtWidgets
 
 def startApp():
     import sys
@@ -9,8 +9,8 @@ def startApp():
     ui = Ui_Dialog()
     ui.setupUi(Dialog)
     Dialog.show()
-
     sys.exit(app.exec_())
+
 
 if __name__ == '__main__':
     startApp()

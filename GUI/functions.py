@@ -222,7 +222,7 @@ def is_number(s):
     return True
 
 
-# conn = sqlite3.connect('C:\coding\projServer\orders.db')
+# conn = sqlite3.connect('C:\coding\projServer\orders.db') # HERE SHOULD BE PATH TO DB
 # c = conn.cursor()
 # c.execute("CREATE TABLE IF NOT EXISTS orders(reqid REAL, name TEXT, type TEXT, request TEXT, product TEXT, amount REAL, price REAL, uid REAL)")
 # #c.execute("INSERT INTO orders VALUES(17, 'Meee', 'Limit', 'sell', 'pony', 11, 11, 69420)")
@@ -235,4 +235,7 @@ def is_number(s):
 #     print(el)
 # print(str(num) + " elements")
 
-getPersonalData()
+
+
+getPersonalData()          # VERY IMPORTANT LINE !!!!! NEVER DELETE
+

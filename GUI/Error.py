@@ -1,22 +1,15 @@
 
-from PyQt5 import QtCore, QtGui, QtWidgets
 import data
-import functions as func
-import styles
-import engine
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import pyqtSlot, Qt
 import client
-from PyQt5.QtWidgets import QApplication, QDialog
-from PyQt5.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout,QHBoxLayout, QGroupBox, QLabel, QPushButton, QFormLayout, QCheckBox,QComboBox
+from PyQt5.QtWidgets import QVBoxLayout, QLabel
 
 if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
 
 if hasattr(QtCore.Qt, 'AA_UseHighDpiPixmaps'):
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
-from PyQt5.QtCore import QThread, Qt, pyqtSignal, QPoint
-import sys
+from PyQt5.QtCore import QThread, Qt, pyqtSignal
 import time
 class MyThread(QThread):
     # Create a counter thread
@@ -36,7 +29,6 @@ class MyThread(QThread):
 class Error(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        #Dialog.setGeometry(data.coord[0], data.coord[1], data.orderResolution[0]/4, data.orderResolution[1]/6)
         Dialog.resize(data.orderResolution[0]/4, data.orderResolution[1]/6)
         flags = QtCore.Qt.WindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
         Dialog.setWindowFlags(flags)
@@ -60,7 +52,7 @@ class Error(object):
 
         def setProgressVal():
             try:
-                r = client.update()
+                r = client.update()      #check if the server is alive
                 Dialog.close()
                 data.error =False
             except:

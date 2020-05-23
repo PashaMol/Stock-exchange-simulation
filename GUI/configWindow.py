@@ -1,19 +1,9 @@
-
-from PyQt5 import QtCore, QtGui, QtWidgets
 import data
 import functions as func
-import styles
-import engine
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import pyqtSlot, Qt
-from PyQt5.QtGui import QPixmap
 from client import bug_log
-#import mainWindow
 import client
-
-
-from PyQt5.QtWidgets import QApplication, QDialog
-from PyQt5.QtWidgets import QApplication,QGridLayout, QWidget, QTabWidget,QScrollArea, QVBoxLayout,QHBoxLayout,QCheckBox, QGroupBox, QLabel, QPushButton, QFormLayout, QCheckBox,QComboBox
+from PyQt5.QtWidgets import QGridLayout, QWidget, QTabWidget,QScrollArea, QVBoxLayout,QHBoxLayout, QGroupBox, QLabel, QPushButton, QFormLayout, QCheckBox
 
 if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
@@ -30,7 +20,6 @@ class Ui_DialogConfig(object):
         Dialog.setObjectName("Dialog")
 
         Dialog.resize(data.orderResolution[0], data.orderResolution[1])
-        #Dialog.setStyleSheet(" background: qlineargradient(spread:pad, x1:0.0568182, y1:0.126, x2:0.75, y2:0.227, stop:0.0738636 rgba(192, 192, 192, 255), stop:0.840909 rgba(210, 210, 210, 255));")
         addingToBox = []
         mainWin = QVBoxLayout(Dialog)
         tabs = QTabWidget()
@@ -70,7 +59,7 @@ class Ui_DialogConfig(object):
 
         tabs.addTab(tab1, "General")
 
-       # tab2 = QWidget()
+        #tab2 = QWidget()
         #tab2.layout = QVBoxLayout(tab2)
         #tabs.addTab(tab2, "Graph Settings")
 
@@ -88,48 +77,6 @@ class Ui_DialogConfig(object):
             joinGraphs.setChecked(True)
         joinGraphs.stateChanged.connect(self.joinGraphs)
         tab1.layout.addWidget(joinGraphs, 0, 1)
-       # tab2.layout.addLayout(searchLine)
-
-        # formLayout0 = QFormLayout()
-        # groupBox0 = QGroupBox()
-        # labelLis = []
-        # comboList = []
-        # #butlist = []
-        # for i in range(1):
-        #     but = QPushButton("Click Me"+ str(i))
-        #     labelLis.append(QLabel("Label" + str(i)))
-        #     comboList.append(but)
-        #     formLayout0.addRow(labelLis[i], comboList[i])
-        #
-        # groupBox0.setLayout(formLayout0)
-        # groupBox0.setTitle("Your Graphs:     Click to delete from Your Graphs.")
-        # scroll0 = QScrollArea()
-        # scroll0.setWidget(groupBox0)
-        # scroll0.setWidgetResizable(True)
-
-        #tab2.layout.addWidget(scroll0)
-
-
-
-        # tab3 = QWidget()
-        # tab3.layout = QGridLayout(tab3)
-        # PIC = QtWidgets.QLabel()
-        # PIC.setPixmap(QPixmap("3.JPG").scaled(200, 200))
-        # tab3.layout.addWidget(PIC, 0, 0)
-        # info = QLabel()
-        # info.setText(func.barInfo().replace("    ", "\n"))
-        # tab3.layout.addWidget(info, 0, 1)
-        #
-        # tab3.layout.addWidget(QPushButton("3"), 1, 0)
-        # tab3.layout.addWidget(QPushButton("4"), 1, 1)
-        #
-        # tab3.layout.addWidget(QPushButton("6"), 2, 0)
-        # tab3.layout.addWidget(QPushButton("7"), 2, 1)
-        #
-        # tabs.addTab(tab3, "Profile")
-
-
-
 
         tab4 = QWidget()
         tab4.layout = QVBoxLayout(tab4)
@@ -210,15 +157,7 @@ class Ui_DialogConfig(object):
             deleteHisButton.setText("DONE")
             deleteHisButton.setDisabled(True)
 
-        # def search():
-        #     text = str(sLine.text().lower().strip())
-        #     if text in data.graphs.keys():
-        #         for i in reversed(range(formLayout0.count())):
-        #             formLayout0.itemAt(i).widget().deleteLater()
-        #         formLayout0.insertRow(0, QPushButton(text))
-        #         groupBox0.setTitle("Click to add to Your Graphs")
-        #     elif text == "":
-        #         groupBox0.setTitle("Your Graphs:     Click to delete from Your Graphs.")
+
         def remove_prd(index):
             print("DLETE THIS NIBO", data.pref_prd[index])
             client.remove_star([data.pref_prd[index]], data.username, data.password)

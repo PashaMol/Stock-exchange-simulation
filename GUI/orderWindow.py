@@ -1,15 +1,11 @@
 
-from PyQt5 import QtCore, QtGui, QtWidgets
 import data
 import functions as func
-import styles
-import engine
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import pyqtSlot, Qt
+from PyQt5.QtCore import Qt
 import client
 from time import time
-from PyQt5.QtWidgets import QApplication, QDialog
-from PyQt5.QtWidgets import QApplication, QWidget, QScrollArea, QVBoxLayout,QHBoxLayout, QGroupBox, QLabel, QPushButton, QFormLayout, QCheckBox,QComboBox
+from PyQt5.QtWidgets import QVBoxLayout,QHBoxLayout, QLabel, QPushButton, QComboBox
 
 if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
@@ -23,7 +19,7 @@ class Ui_DialogOrder(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
         Dialog.resize(data.orderResolution[0], data.orderResolution[1])
-        #Dialog.setStyleSheet(" background: qlineargradient(spread:pad, x1:0.0568182, y1:0.126, x2:0.75, y2:0.227, stop:0.0738636 rgba(192, 192, 192, 255), stop:0.840909 rgba(210, 210, 210, 255));")
+
         MainLayout = QVBoxLayout(Dialog)
         searchLine = QHBoxLayout()
         sLine = QtWidgets.QLineEdit()
@@ -95,13 +91,11 @@ class Ui_DialogOrder(object):
                 print(data.username, data.password)
                 res = client.process(req[1:], data.username, data.password)
             except:
-                print("EXCEPTION OCCURRED: Local database is used instead ")
-                #res = engine.process(req)
+                print("EXCEPTION OCCURRED: Local")
             print(res)
             print("DONE")
 
             if type(res) == bool or type(res[0]) == bool:
-                #print("Bool")
                 statusLabel.setText("Not enough assets")
 
             elif type(res[0])!=str:
@@ -115,6 +109,7 @@ class Ui_DialogOrder(object):
                 if t == "Buy":
                     data.profit = (-1)*data.profit
                 data.balance = (data.balance[0]+data.profit, data.balance[1])
+
             elif ordtype == "Limit":
                 print("fff")
                 statusLabel.setText("The order stays\n in the system")

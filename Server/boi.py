@@ -188,7 +188,7 @@ def show_selected(ss):
   print()
 
 def return_debt(login, uid, id):
-  print(f"Returning debt to {login}...")
+  #print(f"Returning debt to {login}...")
   d.execute(f"SELECT * FROM debts WHERE id = {id} and uid = {uid}")
   try: 
     substract(False, d.fetchall()[0][1], login)
@@ -196,14 +196,18 @@ def return_debt(login, uid, id):
   d.execute(f"DELETE FROM debts WHERE id = {id} and uid = {uid} and id = {id}")
 
 def return_a_debt(id, uid):
+  #print("Return A_Debt to", id) 
   ad.execute(f"SELECT * FROM a_debts WHERE id = {id}")
+  fet = ad.fetchall()
+  #print("LEN:", len(fet))
   try:
-    add_asset(uid, ad.fetchall()[0][0], ad.fetchall()[0][1])
+    #print("KEKEK: ", uid, fet[0][0], fet[0][1])
+    add_asset(uid, fet[0][0], fet[0][1])
   except: pass
   ad.execute(f"DELETE FROM a_debts WHERE id = {id}")
 
 def sub_from_debt(uid, id, sub):
-  print(f"Subing {sub} debt from {uid}, id = {id}...") 
+  #print(f"Subing {sub} debt from {uid}, id = {id}...") 
   d.execute(f"SELECT * FROM debts WHERE uid = {uid} AND id = {id}")
   try:
     fet = d.fetchall()[0][1]
@@ -219,7 +223,8 @@ def sub_from_a_debt(uid, id, sub, asset):
     fet = ad.fetchall()[0][1]
   except:
     return False
-  if fet - sub <= 0: ad.execute(f"DELETE FROM a_debts WHERE uid = {uid} AND asset = '{asset}' AND id = {id}")
+  if fet - sub <= 0:
+    ad.execute(f"DELETE FROM a_debts WHERE uid = {uid} AND asset = '{asset}' AND id = {id}")
   else: ad.execute(f"UPDATE a_debts SET debt = {fet - sub} WHERE uid = {uid} AND asset = '{asset}' AND id = {id}")
   return True
 
@@ -380,7 +385,7 @@ def process(b, login, password):
   if buy:
     c.execute("SELECT * FROM orders WHERE request = 'sell' AND product = " + "\'" + product + "\'" + " AND price <= " + str(price) + " ORDER BY price")
     for i in c.fetchall():
-      if from_u == i[1] : continue
+      if from_u == i[1] and not mm : continue
       if q == 0:
         break
       if i[5] > q:
@@ -427,7 +432,7 @@ def process(b, login, password):
   else:
     c.execute("SELECT * FROM orders WHERE request = 'buy' AND product = " + "\'" + product + "\'" + " AND price >= " + str(price) + " ORDER BY price DESC")
     for i in c.fetchall():
-      if from_u == i[1] : continue
+      if from_u == i[1] and not mm : continue
       if q == 0:
         break
       '''
