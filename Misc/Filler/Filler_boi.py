@@ -555,13 +555,13 @@ stats = {}
 a_debts_table()
 
 global ti_me
-ti_me = time.time() - 3600*1
+ti_me = time.time() - 3600*30
 def time_skip():
   global ti_me
-  ti_me = time.time() - 3600*1
-  for i in range(10):
+  ti_me = time.time() - 3600*24
+  for i in range(26):
     time.sleep(7.5)
-    ti_me += 3600/10
+    ti_me += 3600
     #if ti_me - time.time() >= 3600*24: exit()
   exit()
     

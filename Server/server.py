@@ -5,8 +5,12 @@ import csv
 import time
 import re
 
-ENABLE_OUTPUT = True
 ENABLE_IPv4 = False
+
+ip = input("Do you wish to use the local network? (y/n) ")
+if ip == "y": ENABLE_IPv4 = True
+
+ENABLE_OUTPUT = True
 
 global stats
 global conn, conn1
