@@ -367,8 +367,10 @@ def process(b, login, password):
   # print()
   from_u = login
   uid = get_id(login)
-  if not uid:
+  if not uid and not mm:
     return False
+  if mm:
+    uid = 666
   if b[1].lower() == 'limit':
     limit = True
   else:
