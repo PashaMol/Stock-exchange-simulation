@@ -202,14 +202,14 @@ def delete(login, id):
     rec(client_socket)
     client_socket.send(pickle.dumps([login, id]))
 
-def box_graph(product, buy_sell, start_end):
+def box_graph(product, start_end):
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((IP, PORT))
     client_socket.setblocking(False)
     command = 'box'
     client_socket.send(pickle.dumps(command))
     rec(client_socket)
-    client_socket.send(pickle.dumps([product, buy_sell, len(start_end)]))
+    client_socket.send(pickle.dumps([product, len(start_end)]))
     for i in start_end:
       rec(client_socket)
       client_socket.send(pickle.dumps(i))
