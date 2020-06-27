@@ -382,7 +382,7 @@ class MainWindow(QDialog):
 
 
         def call_my_assets():
-            data.orderResolution[0], data.orderResolution[1] = self.width / 2, self.height / 1.5
+            data.orderResolution[0], data.orderResolution[1] = self.width / data.scale_[0], self.height / data.scale_[1]
             Dialog = QtWidgets.QDialog()
             ui = assets.Ui_DialogAssets()
             ui.setupUi(Dialog)
@@ -393,7 +393,7 @@ class MainWindow(QDialog):
 
         def callOrderWindow(type):
             data.orderWinIsON = True
-            data.orderResolution[0], data.orderResolution[1] = self.width / 3.7, self.height / 3
+            data.orderResolution[0], data.orderResolution[1] = self.width /  data.scale_[2], self.height /  data.scale_[3]
             data.orderType = str(type)
             if self.MainProduct.currentText() != "No filter":
                 try:

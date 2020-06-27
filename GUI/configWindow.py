@@ -32,7 +32,7 @@ class Ui_DialogConfig(object):
         tabs.resize(data.orderResolution[0], data.orderResolution[1])
         tab1 = QWidget()
         tab1.layout = QGridLayout(tab1)
-        deleteHisButton = QPushButton("DELETE HISTORY")
+        deleteHisButton = QPushButton("DELETE HIST.")
         deleteHisButton.clicked.connect(lambda : deleteHis())
         deleteHisButton.setFixedWidth(data.orderResolution[0]/5)
 

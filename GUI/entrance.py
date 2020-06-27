@@ -118,6 +118,7 @@ class Ui_Dialog(object):
                  data.balance = (client.get_balance(uName), "$")
                  if self.size.currentText() == "Big":
                      data.scale = [1.14, 1.2, 4.5, 1.4]
+                     data.scale_ = [2.1,1.5,4.3,3]
                  functions.putPersonalData()
                  mainWindow.runGUI()
                  #print("singIn")
@@ -155,6 +156,7 @@ class Ui_Dialog(object):
                 data.balance = (client.get_balance(uName), "$")
                 if self.size.currentText() == "Big":
                     data.scale = [1.14, 1.2, 4.5, 1.4]
+                    data.scale_ = [2.1, 1.5, 4.3, 3]
                 functions.putPersonalData()
 
                 mainWindow.runGUI()
