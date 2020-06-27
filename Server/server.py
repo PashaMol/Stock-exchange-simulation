@@ -49,10 +49,10 @@ def box_graph(product, buy_sell):
 def return_box_graph(product, buy_sell, start_end):
   ret = []
   for pair in start_end:
-    b.execute(f"SELECT * FROM box WHERE product = '{product}' AND type = '{buy_sell}' AND time >= {pair[0]} AND time <= {pair[1]}")
+    b.execute(f"SELECT * FROM box WHERE product = '{product}' AND time >= {pair[0]} AND time <= {pair[1]}")
     ret1 = []
     for i in b.fetchall():
-      ret1.append(i[1])
+      ret1.append((i[1], i[2]))
     ret.append(ret1)
   return ret
 
