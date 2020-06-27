@@ -327,7 +327,8 @@ def substract(buy, total, login):
   u.execute(f"UPDATE users SET balance = {bal+total} WHERE login = '{login}'")
 
 def does_have(id, product, amount):
-  a.execute(f"SELECT * FROM assets WHERE product = '{product}' AND uid = {id} AND amount >= {amount}")
+  #print("DOES:", id, product, amount)
+  a.execute(f"SELECT * FROM assets WHERE product = '{product}' AND uid = {id} AND amount >= {amount} ")
   kkk = a.fetchall()
   #print(kkk)
   if len(kkk) != 0:
@@ -634,7 +635,7 @@ while True:
         if ENABLE_OUTPUT: print("Wrong login/password combination.....")
         snd(pickle.dumps([False]))
         continue
-      if float(got[4])*float(got[5]) > get_balance(login) and got[3] == buy:
+      if float(got[4])*float(got[5]) > get_balance(login) and got[3] == 'buy':
         if ENABLE_OUTPUT: print("Not enough money.....")
         snd(pickle.dumps([False]))
         continue
