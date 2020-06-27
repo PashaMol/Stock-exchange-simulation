@@ -1,14 +1,14 @@
+import sqlite3
 import csv
 import time
+import re
 import random as rnd
-
-import os
-import sys
-path = os.path.dirname(os.getcwd())
-sys.path.append(path)
-
-import mm_client
-
+import numpy as np
+from matplotlib import pyplot as plt
+import socket
+import pickle
+import time
+from TraderGenerator import *
 
 # initializing
 
@@ -20,8 +20,8 @@ for i in range(len(AvailableGoods)):
 
 print(AvailableGoods, end='\n\n')
 
-class Shares:
 
+class ShareClass:
 
     def __init__(self, initer):
 
@@ -41,14 +41,22 @@ class Shares:
         self.status = 
         '''
 
+    def ModifyDrift(self):
+        return 0.1 * rnd.normalvariate(0, 1) * self.defaultdrift
+
+
+    def SetStartingPrice(self):
+        self.prices.append(rnd.randrange(self.minIPO, self.maxIPO))
+        self.avgIPO = self.prices[-1] 
+        return self.prices[-1]
+
+
     def GeneratePrice(self):
 
         # Generating IPO
 
         if (len(self.prices) == 0):
-            self.prices.append(rnd.randrange(self.minIPO, self.maxIPO))
-            self.avgIPO = self.prices[-1] 
-            return self.prices[-1]
+            return self.SetStartingPrice()
 
         # Modifying price
 
@@ -58,49 +66,119 @@ class Shares:
 
         # Modifying price dynamic
 
-        self.drift += 0.1 * rnd.normalvariate(0, 1) * self.defaultdrift;
+        self.drift += self.ModifyDrift()
+        self.Stabilize()
 
         return self.prices[-1]
-    
-    def GenerateQuery(self):
 
 
-        last_price = self.prices[-1]
-        
-        if (last_price == 0):
-            return "Broke"
-        query = [0]
-        query.append(rnd.choice(["Limit", "FillOrKill"]))
-        query.append(rnd.choice(["sell", "buy"]))
-        query.append(self.name)
-        query.append(rnd.choice([i for i in range(1, 11)]))
-        query.append(int(last_price * 100) / 100)
+    def Stabilize(self):
+        if (self.prices[-1] < 0.1 * self.avgIPO and self.drift < 0):
+            self.drift = -self.drift
 
-        return query
+        if (self.prices[-1] > 10 * self.avgIPO and self.drift > 0):
+            self.drift = -self.drift
 
-Market = [Shares(t) for t in AvailableGoods]
+    def GetPrice(self):
+        return self.prices[-1]
 
-MarketPrices = [[] for t in AvailableGoods]
 
-mm_client.register('MM')
 
-for i in range(10000):
-    for i in range(len(Market)):
-        #time.sleep(0.1)
-        MarketPrices[i].append(Market[i].GeneratePrice())
-        NewQuery = Market[i].GenerateQuery()
-        if (NewQuery != "Broke"):
-            mm_client.process(NewQuery, 'MM')
 
-    #time.sleep(6.0)
 
-'''
-days = np.linspace(1, 100, 100)
+class MarketClass:
 
-for i in range(len(Market)):
-    print(Market[i].prices[0])
-    plt.plot(days, MarketPrices[i], label=Market[i].name)
-    plt.title(Market[i].name)
+    allprices = []
+    curprices = []
+    shares = []
+    size = 0
+    DELTA = 0.01
+
+    def __init__(self, initer):
+        self.shares = [ShareClass(t) for t in initer]
+        self.size = len(self.shares)
+        self.allprices = [[] for t in initer]
+
+    def NewDay(self):
+        self.curprices = []
+        for i in range(self.size):
+            self.allprices[i].append(self.shares[i].GeneratePrice())
+            self.curprices.append(self.allprices[i][-1])
+
+    def Bankruptcy(self):
+        stay = [0 for i in range(self.size)]
+
+        for i in range(self.size):
+            if self.curprices[i] > self.DELTA:
+                stay[i] = 1
+
+        self.shares = [self.shares[i] for i in range(self.size) if stay[i] == 1]
+        self.allprices = [self.allprices[i] for i in range(self.size) if stay[i] == 1]
+        self.curprices = [self.curprices[i] for i in range(self.size) if stay[i] == 1]
+        self.size = len(self.shares)
+
+
+    def AddShare(self, t):
+        self.shares.append(ShareClass(t))
+        self.size += 1
+        self.curprices.append(self.shares[-1].GeneratePrice())
+        self.allprices.append([curprices[-1]])
+
+    def Size(self):
+        return self.size
+
+    def IdByName(self, name):
+        for i in range(size):
+            if (shares[i].name == name):
+                return i
+        return -1
+
+
+
+
+
+Market = MarketClass(AvailableGoods)
+Traders = TraderClass()
+Market.NewDay()
+
+TIME = 100
+deals = dict()
+for i in range(len(Market.shares)):
+    deals[Market.shares[i].name] = [[Market.shares[i].prices[-1]], [Market.shares[i].prices[-1]]];
+
+for j in range(1,TIME):
+    Market.NewDay()
+    Market.Bankruptcy()
+
+    for i in range(len(Market.shares)):
+        deals[Market.shares[i].name][0].append(deals[Market.shares[i].name][0][-1])
+        deals[Market.shares[i].name][1].append(deals[Market.shares[i].name][1][-1])
+
+    if (True):
+        for i in range(10):
+            res = Traders.Dummy(Market)
+
+            if (res == 'fail'):
+                continue
+            #print(res)
+            #print(deals[res[0]])
+
+            if (res[1] == "buy"):
+                deals[res[0]][0][-1] = res[2]
+            else:
+                deals[res[0]][1][-1] = res[2]
+        #time.sleep(1)
+        print(Market.curprices)
+
+
+
+days = np.linspace(1, TIME, TIME)
+
+for i in range(len(Market.shares)):
+    print(Market.shares[i].prices[0])
+    plt.plot(days, deals[Market.shares[i].name][0], label='buy')
+    plt.plot(days, deals[Market.shares[i].name][1], label='sell')
+    plt.title(Market.shares[i].name)
     plt.show()
-'''
+
 

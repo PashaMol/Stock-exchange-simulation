@@ -148,7 +148,8 @@ def remove_star(what, login, password):
     st.execute(f"DELETE FROM stars WHERE login = '{login}' AND what = '{i}'")
   return True
 
-def calc_average(product, new, buy_sell):
+def calc_average(product, buy_sell):
+  '''
   prod = product
   if buy_sell == 'sell':
     prod += '^sell^'
@@ -181,6 +182,15 @@ def calc_average(product, new, buy_sell):
   ret = summ/a
   s.execute(f"INSERT INTO stats VALUES('{product}', {ret}, {time.time()}, '{buy_sell}')")
   return ret
+  '''
+  c.execute(f"SELECT * FROM orders WHERE product = '{product}' AND request = '{buy_sell}'")
+  fet = c.fetchall()
+  if len(fet) != 0:
+    ret = sum([i[6] for i in fet])/len(fet)
+  else: ret = 0
+  s.execute(f"INSERT INTO stats VALUES('{product}', {ret}, {time.time()}, '{buy_sell}')")
+  return ret
+
 
 def return_stats(product, time_start, time_end, type):
   try:
@@ -396,6 +406,7 @@ def process(b, login, password):
   buy_ssell = 'sell'
   if buy: buy_ssell = 'buy'
   box_graph(product, buy_ssell)
+  calc_average(product, buy_ssell)
 
   if buy:
     c.execute("SELECT * FROM orders WHERE request = 'sell' AND product = " + "\'" + product + "\'" + " AND price <= " + str(price) + " ORDER BY price")
@@ -427,14 +438,14 @@ def process(b, login, password):
         if not mm: add_asset(uid, product, i[5])
         #add_asset(i[7], product, -1*i[5])
         add_history(login, product, i[5], i[5]*i[6], "buy")
-        calc_average(product, -1*i[6], 'sell')   #Do we need that?
+        #calc_average(product, -1*i[6], 'sell')#Do we need that?
         list_counter += 1
     if q != 0 and limit:
       if not mm: add_debt(login, uid, reqid, q*price)
       if not mm: substract(True, q*price, login)
       add_to_buffer(['add', reqid, from_u, b[1] ,b[2], product, str(q), price, uid])
       c.execute("INSERT INTO orders VALUES(" + str(reqid) + ", '" + str(from_u) + "', '" + b[1] + "', '" + b[2] + "', '" + product + "', " + str(q) + ", " + str(price) + ", " + str(uid) + ")")
-      calc_average(product, price, 'buy')    #Do we need that?
+      #calc_average(product, -1*i[6], 'sell')#Do we need that?
       '''
       try:
         if price > max_buy_d[product]: max_buy_d[product] = price
@@ -479,7 +490,7 @@ def process(b, login, password):
         add_asset(i[7], product, i[5])
         add_history(login, product, i[5], i[5]*i[6], "sell")
         sub_from_debt(i[7], i[0], i[5]*i[6])
-        calc_average(product, -1*i[6], 'buy')    #Do we need that?
+        #calc_average(product, -1*i[6], 'buy')#Do we need that?
         list_counter += 1
     if q != 0 and not mm:
         add_a_debt(product, uid, reqid, q)
@@ -490,7 +501,7 @@ def process(b, login, password):
     if q != 0 and limit:
         c.execute(f"INSERT INTO orders VALUES({reqid}, '{from_u}', '{b[1]}', '{b[2]}', '{product}', {q}, {price}, {uid})")
         add_to_buffer(['add', reqid, from_u, b[1] ,b[2], product, str(q), price, uid])
-        calc_average(product, price, 'sell')    #Do wee need that?
+        #calc_average(product, price, 'sell')#Do wee need that?
         '''
         try:
           if price < min_sell_d[product]:
@@ -499,6 +510,13 @@ def process(b, login, password):
           min_sell_d[product] = min_sell(product)
         '''
     box_graph(product, buy_ssell)
+    calc_average(product, buy_ssell)
+    if buy_ssell == "buy":
+      box_graph(product, "sell")
+      calc_average(product, "sell")
+    else:
+      box_graph(product, "buy")
+      calc_average(product, "sell")
       
   if not mm: substract(buy, total, login)
   # print()
@@ -789,7 +807,7 @@ while True:
     else:
       print("Unknown command.....")
       continue
-  except Exception as E:
+  except ValueError as E:
     print("\n\nGUI failed:", E)
   conn.commit()
   conn1.commit()
