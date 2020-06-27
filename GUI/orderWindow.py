@@ -2,6 +2,7 @@
 import data
 import functions as func
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 from PyQt5.QtCore import Qt
 import client
 from time import time
@@ -22,29 +23,31 @@ class Ui_DialogOrder(object):
 
         MainLayout = QVBoxLayout(Dialog)
         searchLine = QHBoxLayout()
-        sLine = QtWidgets.QLineEdit()
+        self.sLine = QtWidgets.QLineEdit()
         if data.autocomplete != "No filter":
-            sLine.setText(data.autocomplete)
+            self.sLine.setText(data.autocomplete)
         Dialog.setWindowIcon(QtGui.QIcon('icon1.ico'))
         sBut = QPushButton("GO")
         sBut.clicked.connect(lambda: runEngine())
-        searchLine.addWidget(sLine)
+        searchLine.addWidget(self.sLine)
         searchLine.addWidget(sBut)
         filter = QHBoxLayout()
-        ordertype = QComboBox()
-        ordertype.addItem("Limit")
-        ordertype.addItem("FillorKill")
-        filter.addWidget(ordertype)
-
+        self.ordertype = QComboBox()
+        self.ordertype.addItem("Limit")
+        self.ordertype.addItem("FillorKill")
+        filter.addWidget(self.ordertype)
+        self.ordertype.currentIndexChanged.connect(self.prdChanged, self.ordertype.currentIndex())
         filter.addWidget(QLabel("Amount: "))
         amount = QtWidgets.QLineEdit()
+        #amount.setInputMask("999999")
+
         amount.setText(data.acAmount)
         filter.addWidget(amount)
 
         filter.addWidget(QLabel("Price: "))
-        price = QtWidgets.QLineEdit()
-        price.setText(data.acPrice)
-        filter.addWidget(price)
+        self.price = QtWidgets.QLineEdit()
+        self.price.setText(data.acPrice)
+        filter.addWidget(self.price)
         filter.addWidget(QLabel("$"))
         statusLabel = QLabel("\n")
         statusLabel.setAlignment(Qt.AlignCenter)
@@ -63,16 +66,18 @@ class Ui_DialogOrder(object):
 
 
         def runEngine():
+
+
             statusLabel.setText("")
             resLabel.setText("")
             if time() - self.time_to_sleep < 5:
                 statusLabel.setText("To many requests")
                 return
 
-            ordtype = ordertype.currentText()
+            ordtype = self.ordertype.currentText()
             amt = amount.text()
-            prc = price.text()
-            prd = sLine.text()
+            prc = self.price.text()
+            prd = self.sLine.text()
 
             if len(amt) == 0 or len(prc) == 0 or len(prd) == 0:
                 statusLabel.setText("Fill all \nedit lines!")
@@ -126,6 +131,16 @@ class Ui_DialogOrder(object):
                 statusLabel.setText("Fail")
             self.time_to_sleep = time()
 
+
+
+    def prdChanged(self):
+        try:
+            if self.ordertype.currentText() == "Limit":
+                self.price.setText(str(data.acPrice)[0:5])
+            else:
+                self.price.setText(str(data.acPriceFOK)[0:5])
+        except:
+            pass
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate

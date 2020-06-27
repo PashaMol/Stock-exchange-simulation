@@ -58,13 +58,22 @@ def getPrice(text):
     ind = text.find("Cost:")
     return text[ind+6:]
 
+def getAmt(text):
+    ind = text.find("Amount:")
+    ind1 = text.find("Cost:")
+    #print(text[ind+8: ind1-1])
+    return text[ind+8: ind1-1]
+
 def getTime(time_):
     return datetime.utcfromtimestamp(float(time_)).strftime("%H:%M:%S %d-%m")
 
 
 def sec_to_time(sec):
-    t1 = strftime("%H:%M", gmtime(sec[0]))
-    t2 = strftime("%H:%M", gmtime(sec[1]))
+    # t1 = strftime("%H:%M", gmtime(sec[0]))
+    # t2 = strftime("%H:%M", gmtime(sec[1]))
+
+    t1 = datetime.fromtimestamp(sec[0]).strftime("%H:%M")
+    t2 = datetime.fromtimestamp(sec[1]).strftime("%H:%M")
     #print("sec", t1, t2)
     return t1 +" - "+ t2
 
@@ -77,7 +86,7 @@ def getOrder():
 
         output = client.exe('SELECT * FROM orders')
     except:
-        print("EXCEPTION OCCURRED: Local database is used instead ")
+        #print("EXCEPTION OCCURRED: Local database is used instead ")
         conn = sqlite3.connect('orders.db')
         c = conn.cursor()
 
@@ -111,7 +120,7 @@ def findOrder(product = None, type = None, request = None, amount = None, price 
     return data
 
 def getNews():
-    print("Start updating")
+    #print("Start updating")
     obj = []
     temp = []
     i = 0
@@ -131,8 +140,8 @@ def getNews():
 
     obj = temp
     data.news = obj
-    print("News are updated")
-    print(data.news)
+    #print("News are updated")
+    #print(data.news)
 
 
 def getRandUnix():

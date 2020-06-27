@@ -21,7 +21,7 @@ addToOrd = (False, "Buy", "")
 autocomplete = ""
 acAmount = "1"
 acPrice = "1"
-
+acPriceFOK = "1"
 goLocal = False
 yourOrd = []
 system_ord = []

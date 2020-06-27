@@ -202,14 +202,14 @@ def delete(login, id):
     rec(client_socket)
     client_socket.send(pickle.dumps([login, id]))
 
-def box_graph(product, buy_sell, start_end):
+def box_graph(product, start_end):
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((IP, PORT))
     client_socket.setblocking(False)
     command = 'box'
     client_socket.send(pickle.dumps(command))
     rec(client_socket)
-    client_socket.send(pickle.dumps([product, buy_sell, len(start_end)]))
+    client_socket.send(pickle.dumps([product, len(start_end)]))
     for i in start_end:
       rec(client_socket)
       client_socket.send(pickle.dumps(i))
@@ -251,24 +251,23 @@ def my_assets(login, password):
 #print(delete('TEST', 1588266625.5560997))
 
 ######
-#print(process( ['Noice', 'Limit', 'sell','GasTm69', '5', '100'] , "TST1", "1234" ))
-#print(process( ['Noice', 'Limit', 'buy','GasTm69', '20', '100'] , "TEST2", "1234" ))
+#print(get_id("TST1"))
+#print(process( ['Noice', 'Limit', 'sell','GasTm69', '5', '1000'] , "TST1", "1234" ))
+#print(process( ['Noice', 'Limit', 'buy','GasTm69', '5', '1000'] , "TEST2", "1234" ))
 #print(delete("TEST2", 1588441641.1346366))
 ######
+#print(process( ['TEST', 'Limit', 'buy','GasTm', '1', '1000'] , "TEST", "1234" ))
 
 #1588431086.958449
 #print(get_id('TEST2'))
 
 #print(stats('GasTm', 0, 9999999999999999, 'buy'))
-
+#print(box_graph("GasTm", [[0,100000000000000000000]]))
 
 #print(register('pasham999', '1234'))
-#print(get_balance('Nigga9'))
 #print(known_user("TEST", False))
 #print(my_assets("TEST", "1234"))
 #print(get_history("TEST", "1234"))
-#print(add_star(['kek','nice','ass','nigga','BRUH'], 'TEST', '1234'))
-#print(remove_star(['nigga','nigga','faggot','BRUH','ALLAH'], 'TEST', '1234'))
 #print(box_graph('GasTm', 'buy', [[0, 15865453900.99], [0, 15865453900.99]]))
 #print(delete_history('TEST', '1234'))
     

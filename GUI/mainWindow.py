@@ -17,7 +17,8 @@ import assets
 import Error
 import data
 import time
-
+import os
+import signal
 
 import client
 
@@ -103,7 +104,7 @@ class MainWindow(QDialog):
         history = client.get_history(data.username, data.password)
         print("HERE WE GO AGAIN")
         for r in history:
-            print(r)
+            #print(r)
             if len(r):
                 Order = QtWidgets.QPushButton()
                 if r[-1] == "sell":
@@ -372,7 +373,7 @@ class MainWindow(QDialog):
                 inp = [[x, x + step] for x in range(int(tm_), int(tm), int(step))]
                 prd = self.MainProduct.currentText()
                 data.bx = client.box_graph(prd, inp)
-                data.bx1 = client.box_graph(prd, inp)
+                #data.bx1 = client.box_graph(prd, inp)
                 data.bx_lab = inp
                 #print("Box", inp)
 
@@ -395,11 +396,35 @@ class MainWindow(QDialog):
             data.orderType = str(type)
             if self.MainProduct.currentText() != "No filter":
                 try:
+                    amtN = 0 # для средневзвешенного
+                    wcc = 0
+                    # computing autocomplete prices
                     if str(type) == "Buy":
 
+
+                        for i in reversed(range(self.formLayout0.count())):
+                            try:
+                                #print("=>",func.getPrice(self.formLayout0.itemAt(i).widget().text()))
+                                amtN += float(func.getAmt(self.formLayout0.itemAt(i).widget().text()))
+
+                                wcc += float(func.getAmt(self.formLayout0.itemAt(i).widget().text()))*float(func.getPrice(self.formLayout0.itemAt(i).widget().text()))
+                            except:
+                                pass
+
                         data.acPrice = func.getPrice(self.formLayout0.itemAt(0).widget().text())
+                        #print("wcc1",wcc, amtN)
+                        data.acPriceFOK = (wcc/(amtN))
+
                     else:
-                        data.acPrice = func.getPrice(self.formLayout.itemAt(self.formLayout0.count() - 1).widget().text())
+                        for i in reversed(range(self.formLayout.count())):
+                            try:
+                                amtN += float(func.getAmt(self.formLayout.itemAt(i).widget().text()))
+                                wcc += float(func.getAmt(self.formLayout.itemAt(i).widget().text()))*float(func.getPrice(self.formLayout.itemAt(i).widget().text()))
+                            except:
+                                pass
+                        #print("wcc2", wcc, amtN)
+                        data.acPrice = func.getPrice(self.formLayout.itemAt(self.formLayout.count() - 1).widget().text())
+                        data.acPriceFOK = wcc/(amtN)
                 except: pass
 
             data.autocomplete = self.MainProduct.currentText()
@@ -487,17 +512,17 @@ class MainWindow(QDialog):
     def reloading(self):
         print("__reloading__")
         try:
-            if data.joinG[0] == True and data.joinG[1] == True and data.sleep == 0:
+            if data.joinG[0] == True and data.joinG[1] == True:
                 data.zoom1 = data.zoom
                 tm = time.time()
                 step = 3600
                 tm_ = tm - 60 * 60 * 24
                 inp = [[x, x + step] for x in range(int(tm_), int(tm), int(step))]
                 prd = self.MainProduct.currentText()
-                data.bx = client.box_graph(prd, 'buy', inp)
-                data.bx1 = client.box_graph(prd, 'sell', inp)
+                data.bx = client.box_graph(prd, inp)
+                # data.bx1 = client.box_graph(prd, inp)
                 data.bx_lab = inp
-                #print("GOT BOX", inp)
+                # print("Box", inp)
             data.sleep += 1
             if data.sleep == 60:
                 data.sleep = 0
@@ -767,8 +792,7 @@ class MainWindow(QDialog):
         self.thread1.terminate()
         self.thread2.terminate()
         self.thread3.terminate()
-        import os
-        import signal
+
         pid = os.getpid()
         os.kill(pid, signal.SIGINT)
         print(pid)

@@ -143,10 +143,10 @@ class CanvasUp(FigureCanvas):
             # self.figure.canvas.mpl_connect('figure_leave_event', leave_figure)
             # self.figure.canvas.mpl_connect('button_press_event', onclick)
 
-            ax = self.figure.add_subplot(111)
-            ax.set_ylim([0, max(max(y1), max(y2)) * 1.15])
+            ax1 = self.figure.add_subplot(111)
+            ax1.set_ylim([0, max(max(y1), max(y2)) * 1.15])
 
-            self.figure.text(0.5, 0.5, f'{data.chosen_prd}', transform=ax.transAxes,
+            self.figure.text(0.5, 0.5, f'{data.chosen_prd}', transform=ax1.transAxes,
                              fontsize=40, color='gray', alpha=0.5,
                              ha='center', va='center')
 
@@ -158,15 +158,16 @@ class CanvasUp(FigureCanvas):
                 c2 = lighten_color("red",0.9)
 
 
-            ax.fill_between(x1, y1=y1, y2=0, alpha=0.7, color= c1, linewidth=2)
-            ax.fill_between(x1, y1=y2, y2=0,alpha=0.7, color= c2, linewidth=2)
+            ax1.fill_between(x1, y1=y1, y2=0, alpha=0.7, color= c1, linewidth=2)
+            ax1.fill_between(x1, y1=y2, y2=0,alpha=0.7, color= c2, linewidth=2)
+
             if len(x1) > 10:
-                ax.set_xticks(ax.get_xticks()[::len(x1) // 20])
+                ax1.set_xticks(ax1.get_xticks()[::len(x1) // 20])
                 self.figure.autofmt_xdate()
 
-            ax.grid()
+            ax1.grid()
             self.draw_idle()
-        except: pass
+        except Exception as E: print("UP", E)
 
 
     def no_data(self):
@@ -282,47 +283,62 @@ class CanvasLow(FigureCanvas):
 
 
     def candels(self):
+        try:
+            mpl.use('agg')
+            mpl.rcParams['boxplot.whiskerprops.linestyle'] = '-'
 
-        mpl.use('agg')
-        mpl.rcParams['boxplot.whiskerprops.linestyle'] = '-'
+            ax1 = self.figure.add_subplot(111)
 
-        ax1 = self.figure.add_subplot(111)
+            #to_build = [List for List in data.bx]
+            #to_build1 = [List for List in data.bx1]
+            print("JJJJ", data.bx)
+            #to_build = [(el[0]+el[1])/2 for el in data.bx[0]]
+            to_build = []
+            for segm in data.bx:
+                to_build.append([(el[0]+el[1])/2 for el in segm])
 
-        to_build = [List for List in data.bx]
-        to_build1 = [List for List in data.bx1]
+            c1 = [0.2, 0.6, 1, 0.69]
 
-        c1 = [0, 1, 0, 0.69]
-        c2 = [1, 0 ,0 , 0.69]
-        labelList = [func.sec_to_time(sec) for sec in data.bx_lab]
-        labelList_emp = [" "]*len(labelList)
+            c2 = [1, 0 ,0 , 0.69]
+            labelList = [func.sec_to_time(sec) for sec in data.bx_lab]
+            #labelList_emp = [" "]*len(labelList)  # labels=labelList_emp
 
-        print(":: ", len(to_build), len(labelList))
+            print(":: ", len(to_build), to_build)
 
-        box1 = ax1.boxplot(to_build, positions= np.arange(len(to_build))-0.2 ,  labels=labelList_emp, notch=False, patch_artist=True,
-                           widths=0.3, medianprops=dict(color='white'),
-                           boxprops=dict(facecolor=c1, color=c1),
-                           capprops=dict(color=c1),
-                           whiskerprops=dict(color=c1),
-                           flierprops=dict(color=c1, markeredgecolor=c1),
-                           )
+            box1 = ax1.boxplot(to_build,labels=labelList,notch=False, patch_artist=True,
+                               widths=0.3, medianprops=dict(color='white'),
+                               boxprops=dict(facecolor=c1, color=c1),
+                               capprops=dict(color=c1),
+                               whiskerprops=dict(color=c1),
+                               flierprops=dict(color=c1, markeredgecolor=c1),
+                               )
 
-        box2 = ax1.boxplot(to_build1, positions= np.arange(len(to_build1))+0.2, labels=labelList, notch=False, patch_artist=True,
-                           widths=0.3, medianprops=dict(color='white'),
-                           boxprops=dict(facecolor=c2, color=c2),
-                           capprops=dict(color=c2),
-                           whiskerprops=dict(color=c2),
-                           flierprops=dict(color=c2, markeredgecolor=c2)
-                           )
-
-
-        self.figure.autofmt_xdate()
-
-
-        ax1.plot()
-
-        self.draw_idle()
+            # box2 = ax1.boxplot(to_build1, positions= np.arange(len(to_build1))+0.2, labels=labelList, notch=False, patch_artist=True,
+            #                    widths=0.3, medianprops=dict(color='white'),
+            #                    boxprops=dict(facecolor=c2, color=c2),
+            #                    capprops=dict(color=c2),
+            #                    whiskerprops=dict(color=c2),
+            #                    flierprops=dict(color=c2, markeredgecolor=c2)
+            #                    )
 
 
+            self.figure.autofmt_xdate()
+
+
+            ax1.plot()
+
+            self.draw_idle()
+        except Exception as E:
+            ax = self.figure.add_subplot(111)
+
+            self.figure.text(0.5, 0.5, 'NO DATA', transform=ax.transAxes,
+                             fontsize=40, color='gray', alpha=0.5,
+                             ha='center', va='center')
+
+            ax.plot(0, 2, color=cols[random.randrange(0, len(cols))])
+            ax.set_title("", loc='left')
+
+            print("Bad candels => ", E)
 
 
     def no_data(self):
