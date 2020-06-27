@@ -55,7 +55,7 @@ class MainWindow(QDialog):
         self.title = "Main window"
         self.top = 55
         self.left = 7
-        w = 1.17
+        w = 1.14
         h = 1.2
         data.reso[0] = App.primaryScreen().size().width()
         data.reso[1] = App.primaryScreen().size().height()
@@ -690,12 +690,14 @@ class MainWindow(QDialog):
                             thisorder.setStyleSheet(styles.buybutton)
                             thisorder.setText(func.buyOrder("Limit", el[2], el[3], el[4]))
                             data.balance = (data.balance[0]- float(el[3]) * float(el[4]), data.balance[1])
-                            msg_text += func.buyOrder("Limit", el[2], el[3], el[4])
+                            #msg_text += func.buyOrder("Limit", el[2], el[3], el[4])
+                            msg_text += "Limit Buy" + el[2]
                         else:
                             thisorder.setStyleSheet(styles.sellbutton)
                             thisorder.setText(func.sellOrder("Limit", el[2], el[3], el[4]))
                             data.balance = (data.balance[0] + float(el[3]) * float(el[4]), data.balance[1])
-                            msg_text += func.sellOrder("Limit", el[2], el[3], el[4])
+                            #msg_text += func.sellOrder("Limit", el[2], el[3], el[4])
+                            msg_text += "Limit Sell" + el[2]
                         thisorder.setDisabled(True)
                         self.formLayout1.insertRow(0, thisorder)
                         msg.setText(msg_text + "\nhas been executed.")
