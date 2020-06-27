@@ -6,7 +6,7 @@ import mainWindow
 import functions
 import client
 from PyQt5.QtCore import QThread, pyqtSignal
-from PyQt5.QtWidgets import QGridLayout, QLineEdit, QPushButton
+from PyQt5.QtWidgets import QGridLayout, QLineEdit, QPushButton, QComboBox
 
 if hasattr(QtCore.Qt, 'AA_EnableHighDpiScaling'):
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
@@ -62,6 +62,11 @@ class Ui_Dialog(object):
         self.infLabel.setFixedHeight(15)
         self.L.addWidget(self.infLabel, 5, 1)
         self.uPasswordLine.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.size = QComboBox()
+        self.size.addItem("Small")
+        self.size.addItem("Big")
+        self.L.addWidget(QtWidgets.QLabel("Window Size"), 6, 0)
+        self.L.addWidget(self.size, 6, 1) # [1.14,1.2, 4.5,1.4]
 
 
         self.retranslateUi(Dialog)
@@ -111,6 +116,8 @@ class Ui_Dialog(object):
             try:
                  data.userid = client.get_id(uName)
                  data.balance = (client.get_balance(uName), "$")
+                 if self.size.currentText() == "Big":
+                     data.scale = [1.14, 1.2, 4.5, 1.4]
                  functions.putPersonalData()
                  mainWindow.runGUI()
                  #print("singIn")
@@ -146,7 +153,10 @@ class Ui_Dialog(object):
             try:
                 data.userid = client.get_id(uName)
                 data.balance = (client.get_balance(uName), "$")
+                if self.size.currentText() == "Big":
+                    data.scale = [1.14, 1.2, 4.5, 1.4]
                 functions.putPersonalData()
+
                 mainWindow.runGUI()
                 #print("signUp")
             except:

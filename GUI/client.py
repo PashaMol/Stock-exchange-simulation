@@ -256,7 +256,7 @@ def my_assets(login, password):
 #print(process( ['Noice', 'Limit', 'buy','GasTm69', '5', '1000'] , "TEST2", "1234" ))
 #print(delete("TEST2", 1588441641.1346366))
 ######
-#print(process( ['TEST', 'Limit', 'sell','1234', '6899', '1000000'] , "TEST", "1234" ))
+#print(process( ['TEST', 'Limit', 'buy','GasTm', '1', '1000'] , "TEST", "1234" ))
 
 #1588431086.958449
 #print(get_id('TEST2'))

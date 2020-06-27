@@ -37,7 +37,7 @@ ORDDIC = {}
 coord = [0, 0]
 toDelete = False
 clearHis = False
-
+scale = [1.94,1.8, 3.8, 1.4]
 graphsData = []
 graphsData_1 = []
 

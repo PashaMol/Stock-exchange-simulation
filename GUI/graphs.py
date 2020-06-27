@@ -78,7 +78,7 @@ def leave_figure(event):
 
 
 class CanvasUp(FigureCanvas):
-    def __init__(self, parent=None, width=5, height=5, dpi=50):
+    def __init__(self, parent=None, width=5, height=5, dpi=40):
         if data.mode == "Dark":
             plt.style.use('dark_background')
         else:
@@ -251,7 +251,7 @@ class CanvasUp(FigureCanvas):
 
 
 class CanvasLow(FigureCanvas):
-    def __init__(self, parent=None, width=5, height=5, dpi=50):
+    def __init__(self, parent=None, width=5, height=5, dpi=40):
         if data.mode == "Dark":
             plt.style.use('dark_background')
         else:
