@@ -46,7 +46,7 @@ def box_graph(product, buy_sell):
   except: best_bid = 0
   b.execute(f"INSERT INTO box VALUES('{product}', {best_bid}, {best_ask}, {time.time()})")
 
-def return_box_graph(product, buy_sell, start_end):
+def return_box_graph(product, buy_sell):
   ret = []
   for pair in start_end:
     b.execute(f"SELECT * FROM box WHERE product = '{product}' AND time >= {pair[0]} AND time <= {pair[1]}")
@@ -666,7 +666,7 @@ while True:
       try:
         got = rec(client_socket)
         if not got: continue
-        product, buy_sell, L = got
+        product, L = got
       except: continue
       start_end = []
       try:
@@ -676,7 +676,7 @@ while True:
           if not got: continue
           start_end.append(got)
       except: continue
-      ret = return_box_graph(product, buy_sell, start_end)
+      ret = return_box_graph(product, start_end)
       send_many_box(len(ret), ret)
 
     elif command == 'my assets':

@@ -262,7 +262,7 @@ def my_assets(login, password):
 #print(get_id('TEST2'))
 
 #print(stats('GasTm', 0, 9999999999999999, 'buy'))
-
+#print(box_graph("GasTm", [[0,100000000000000000000]]))
 
 #print(register('pasham999', '1234'))
 #print(known_user("TEST", False))
