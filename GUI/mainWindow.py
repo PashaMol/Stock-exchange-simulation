@@ -371,8 +371,8 @@ class MainWindow(QDialog):
                 tm_ = tm - 60 * 60 * 24
                 inp = [[x, x + step] for x in range(int(tm_), int(tm), int(step))]
                 prd = self.MainProduct.currentText()
-                data.bx = client.box_graph(prd, 'buy', inp)
-                data.bx1 = client.box_graph(prd, 'sell', inp)
+                data.bx = client.box_graph(prd, inp)
+                data.bx1 = client.box_graph(prd, inp)
                 data.bx_lab = inp
                 #print("Box", inp)
 

@@ -4,11 +4,9 @@ import sqlite3
 import csv
 import time
 import re
-import os
 
 ENABLE_IPv4 = False
 
-os.system("color a")
 ip = input("Do you wish to use the local network? (y/n) ")
 if ip == "y": ENABLE_IPv4 = True
 
@@ -35,18 +33,20 @@ def snd(what):
     return False
   return True
 
-def box_graph(product, buy_sell):
-  c.execute(f"SELECT * FROM orders WHERE product = '{product}' AND request = '{buy_sell}'")
-  prices = []
-  for i in c.fetchall():
-      prices.append(i[6])
-  for i in prices:
-    b.execute(f"INSERT INTO box VALUES('{product}', {i}, {time.time()}, '{buy_sell}')")
 
-def return_box_graph(product, start_end):
+def box_graph(product, buy_sell):
+  c.execute(f"SELECT * FROM orders WHERE product = '{product}' AND request = 'buy' ORDER BY price DESC")
+  try: best_ask = c.fetchall()[0][6]
+  except: best_ask = 0
+  c.execute(f"SELECT * FROM orders WHERE product = '{product}' AND request = 'sell' ORDER BY price ASC")
+  try: best_bid = c.fetchall()[0][6]
+  except: best_bid = 0
+  b.execute(f"INSERT INTO box VALUES('{product}', {best_bid}, {best_ask}, {time.time()})")
+
+def return_box_graph(product, buy_sell, start_end):
   ret = []
   for pair in start_end:
-    b.execute(f"SELECT * FROM box WHERE product = '{product}' AND time >= {pair[0]} AND time <= {pair[1]}")
+    b.execute(f"SELECT * FROM box WHERE product = '{product}' AND type = '{buy_sell}' AND time >= {pair[0]} AND time <= {pair[1]}")
     ret1 = []
     for i in b.fetchall():
       ret1.append(i[1])
@@ -75,7 +75,7 @@ def create_table_users():
   u.execute("CREATE TABLE IF NOT EXISTS users(id REAL, login TEXT, password TEXT, balance REAL)")
 
 def box_table():
-  b.execute("CREATE TABLE IF NOT EXISTS box(product TEXT, price REAL, time REAL, type TEXT)")
+  b.execute("CREATE TABLE IF NOT EXISTS box(product TEXT, best_bid REAL, best_ask REAL, time REAL)")
 
 def assets_table():
   a.execute("CREATE TABLE IF NOT EXISTS assets(uid REAL, product TEXT, amount REAL)")
@@ -389,6 +389,9 @@ def process(b, login, password):
   list_counter = 0
   total = 0
   q = float(amount)
+  buy_ssell = 'sell'
+  if buy: buy_ssell = 'buy'
+  box_graph(product, buy_ssell)
 
   if buy:
     c.execute("SELECT * FROM orders WHERE request = 'sell' AND product = " + "\'" + product + "\'" + " AND price <= " + str(price) + " ORDER BY price")
@@ -421,7 +424,6 @@ def process(b, login, password):
         #add_asset(i[7], product, -1*i[5])
         add_history(login, product, i[5], i[5]*i[6], "buy")
         calc_average(product, -1*i[6], 'sell')   #Do we need that?
-        box_graph(product, 'sell')
         list_counter += 1
     if q != 0 and limit:
       if not mm: add_debt(login, uid, reqid, q*price)
@@ -429,7 +431,6 @@ def process(b, login, password):
       add_to_buffer(['add', reqid, from_u, b[1] ,b[2], product, str(q), price, uid])
       c.execute("INSERT INTO orders VALUES(" + str(reqid) + ", '" + str(from_u) + "', '" + b[1] + "', '" + b[2] + "', '" + product + "', " + str(q) + ", " + str(price) + ", " + str(uid) + ")")
       calc_average(product, price, 'buy')    #Do we need that?
-      box_graph(product, 'buy')
       '''
       try:
         if price > max_buy_d[product]: max_buy_d[product] = price
@@ -475,7 +476,6 @@ def process(b, login, password):
         add_history(login, product, i[5], i[5]*i[6], "sell")
         sub_from_debt(i[7], i[0], i[5]*i[6])
         calc_average(product, -1*i[6], 'buy')    #Do we need that?
-        box_graph(product, 'buy')
         list_counter += 1
     if q != 0 and not mm:
         add_a_debt(product, uid, reqid, q)
@@ -487,7 +487,6 @@ def process(b, login, password):
         c.execute(f"INSERT INTO orders VALUES({reqid}, '{from_u}', '{b[1]}', '{b[2]}', '{product}', {q}, {price}, {uid})")
         add_to_buffer(['add', reqid, from_u, b[1] ,b[2], product, str(q), price, uid])
         calc_average(product, price, 'sell')    #Do wee need that?
-        box_graph(product, 'sell')
         '''
         try:
           if price < min_sell_d[product]:
@@ -495,6 +494,7 @@ def process(b, login, password):
         except:
           min_sell_d[product] = min_sell(product)
         '''
+    box_graph(product, buy_ssell)
       
   if not mm: substract(buy, total, login)
   # print()
@@ -567,7 +567,7 @@ print(f'Listening for connections on {IP}:{PORT}...')
 while True:
   
   got = False
-  server_socket.listen(5)
+  server_socket.listen(1024)
   client_socket, client_adress = server_socket.accept()
   #server_socket.settimeout(0.5)
   client_socket.settimeout(0.5)
@@ -575,215 +575,218 @@ while True:
   if not command: continue
   start = time.time()
 
-  if command == 'mm_process':
-    if ENABLE_OUTPUT: print("Working on \"mm_process\" command.....")
-    snd(pickle.dumps('ok'))
-    got = rec(client_socket)
-    if not got: continue
-    got, login, key = got
-    if ENABLE_OUTPUT: print("Got request: ", got, login, key)
-    if key != 'c35312fb3a7e05b7a44db2326bd29040':
-      if ENABLE_OUTPUT: print("Wrong key.....")
-      snd(pickle.dumps([False]))
-      continue
-    ret = process(got, login, key)
-    snd(pickle.dumps(ret))
-
-  elif command == 'get':
-    if ENABLE_OUTPUT: print("Working on \"get\" command.....")
-    snd(pickle.dumps('ok'))
-    got = rec(client_socket)
-    if not got: continue
-    if ENABLE_OUTPUT: print("Got request: ", got)
-    k = re.search("update", got, re.I)
-    kl= re.search("delete", got, re.I)
-    try:
-      gg = k.group(0)
-      gg1= k1.group(0)
-      continue
-    except:
-      pass
-    c.execute(got)
-    ret = c.fetchall()
-    send_many(len(ret), ret)
-
-  elif command == 'process':
-    if ENABLE_OUTPUT: print("Working on \"process\" command.....")
-    snd(pickle.dumps('ok'))
-    got = rec(client_socket)
-    if not got: continue
-    got, login, password = got
-    '''
-    if got[2] == 'buy':
-      if float(got[5]) >= min_sell(got[3]):
-        if ENABLE_OUTPUT: print("Buy bids should be cheaper than sell ones")
-        snd(pickle.dumps(["B>=S"]))
-        continue
-    else:
-      if float(got[5]) <= max_buy(got[3]):
-        if ENABLE_OUTPUT: print("Buy bids should be cheaper than sell ones")
-        snd(pickle.dumps(["S<=B"]))
-        continue
-    '''
-    if ENABLE_OUTPUT: print("Got request: ", got, login, password)
-    if not find(login, password):
-      if ENABLE_OUTPUT: print("Wrong login/password combination.....")
-      snd(pickle.dumps([False]))
-      continue
-    if float(got[4])*float(got[5]) > get_balance(login) and got[3] == buy:
-      if ENABLE_OUTPUT: print("Not enough money.....")
-      snd(pickle.dumps([False]))
-      continue
-    if got[2] == 'sell' and not does_have(get_id(login), got[3], got[4]):
-      if ENABLE_OUTPUT: print("Not enough assets.....")
-      snd(pickle.dumps([False]))
-      continue
-    ret = process(got, login, password)
-    snd(pickle.dumps(ret))
-
-  elif command == 'update':
-    if ENABLE_OUTPUT: print("Working on \"update\" command.....")
-    snd(pickle.dumps('ok'))
-    ret = update()
-    if ENABLE_OUTPUT: print("To update: ", ret)
-    snd(pickle.dumps(ret))
-
-  elif command == 'delete':
-    if ENABLE_OUTPUT: print("Working on \"delete\" command.....")
-    snd(pickle.dumps('ok'))
-    got = rec(client_socket)
-    if not got: continue
-    login, id = got
-    delete(login, id, get_id(login))
-
-  elif command == 'box':
-    if ENABLE_OUTPUT: print("Working on \"box\" command.....")
-    snd(pickle.dumps('ok'))
-    try:
+  try:
+    if command == 'mm_process':
+      if ENABLE_OUTPUT: print("Working on \"mm_process\" command.....")
+      snd(pickle.dumps('ok'))
       got = rec(client_socket)
       if not got: continue
-      product, L = got
-    except: continue
-    start_end = []
-    try:
-      for i in range(L):
-        snd(pickle.dumps('ok'))
+      got, login, key = got
+      if ENABLE_OUTPUT: print("Got request: ", got, login, key)
+      if key != 'c35312fb3a7e05b7a44db2326bd29040':
+        if ENABLE_OUTPUT: print("Wrong key.....")
+        snd(pickle.dumps([False]))
+        continue
+      ret = process(got, login, key)
+      snd(pickle.dumps(ret))
+
+    elif command == 'get':
+      if ENABLE_OUTPUT: print("Working on \"get\" command.....")
+      snd(pickle.dumps('ok'))
+      got = rec(client_socket)
+      if not got: continue
+      if ENABLE_OUTPUT: print("Got request: ", got)
+      k = re.search("update", got, re.I)
+      kl= re.search("delete", got, re.I)
+      try:
+        gg = k.group(0)
+        gg1= k1.group(0)
+        continue
+      except:
+        pass
+      c.execute(got)
+      ret = c.fetchall()
+      send_many(len(ret), ret)
+
+    elif command == 'process':
+      if ENABLE_OUTPUT: print("Working on \"process\" command.....")
+      snd(pickle.dumps('ok'))
+      got = rec(client_socket)
+      if not got: continue
+      got, login, password = got
+      '''
+      if got[2] == 'buy':
+        if float(got[5]) >= min_sell(got[3]):
+          if ENABLE_OUTPUT: print("Buy bids should be cheaper than sell ones")
+          snd(pickle.dumps(["B>=S"]))
+          continue
+      else:
+        if float(got[5]) <= max_buy(got[3]):
+          if ENABLE_OUTPUT: print("Buy bids should be cheaper than sell ones")
+          snd(pickle.dumps(["S<=B"]))
+          continue
+      '''
+      if ENABLE_OUTPUT: print("Got request: ", got, login, password)
+      if not find(login, password):
+        if ENABLE_OUTPUT: print("Wrong login/password combination.....")
+        snd(pickle.dumps([False]))
+        continue
+      if float(got[4])*float(got[5]) > get_balance(login) and got[3] == buy:
+        if ENABLE_OUTPUT: print("Not enough money.....")
+        snd(pickle.dumps([False]))
+        continue
+      if got[2] == 'sell' and not does_have(get_id(login), got[3], got[4]):
+        if ENABLE_OUTPUT: print("Not enough assets.....")
+        snd(pickle.dumps([False]))
+        continue
+      ret = process(got, login, password)
+      snd(pickle.dumps(ret))
+
+    elif command == 'update':
+      if ENABLE_OUTPUT: print("Working on \"update\" command.....")
+      snd(pickle.dumps('ok'))
+      ret = update()
+      if ENABLE_OUTPUT: print("To update: ", ret)
+      snd(pickle.dumps(ret))
+
+    elif command == 'delete':
+      if ENABLE_OUTPUT: print("Working on \"delete\" command.....")
+      snd(pickle.dumps('ok'))
+      got = rec(client_socket)
+      if not got: continue
+      login, id = got
+      delete(login, id, get_id(login))
+
+    elif command == 'box':
+      if ENABLE_OUTPUT: print("Working on \"box\" command.....")
+      snd(pickle.dumps('ok'))
+      try:
         got = rec(client_socket)
         if not got: continue
-        start_end.append(got)
-    except: continue
-    ret = return_box_graph(product, start_end)
-    send_many_box(len(ret), ret)
+        product, buy_sell, L = got
+      except: continue
+      start_end = []
+      try:
+        for i in range(L):
+          snd(pickle.dumps('ok'))
+          got = rec(client_socket)
+          if not got: continue
+          start_end.append(got)
+      except: continue
+      ret = return_box_graph(product, buy_sell, start_end)
+      send_many_box(len(ret), ret)
 
-  elif command == 'my assets':
-    if ENABLE_OUTPUT: print("Working on \"my assets\" command.....")
-    snd(pickle.dumps('ok'))
-    try:
+    elif command == 'my assets':
+      if ENABLE_OUTPUT: print("Working on \"my assets\" command.....")
+      snd(pickle.dumps('ok'))
+      try:
+        got = rec(client_socket)
+        if not got: continue
+        login, password = got
+      except: continue
+      ret = my_assets(login, password)
+      send_many(len(ret), ret)
+
+    elif command == 'bug':
+      if ENABLE_OUTPUT: print("Working on \"bug\" command.....")
+      snd(pickle.dumps('ok'))
+      try:
+        got = rec(client_socket)
+        if not got: continue
+      except: continue
+      bug_log(got)
+
+    elif command == 'register':
+          if ENABLE_OUTPUT: print("Working on \"register\" command.....")
+          snd(pickle.dumps("ok"))
+          got = rec(client_socket)
+          if not got: continue
+          login, password = got
+          snd(pickle.dumps(register(login, password)))
+    elif command == 'get balance':
+          if ENABLE_OUTPUT: print("Working on \"get balance\" command.....")
+          snd(pickle.dumps("ok"))
+          got = rec(client_socket)
+          if not got: continue
+          snd(pickle.dumps(get_balance(got)))
+
+    elif command == 'get id':
+          if ENABLE_OUTPUT: print("Working on \"get id\" command.....")
+          snd(pickle.dumps("ok"))
+          got = rec(client_socket)
+          if not got: continue
+          snd(pickle.dumps(get_id(got)))
+
+    elif command == 'known user':
+          if ENABLE_OUTPUT: print("Working on \"known user\" command.....")
+          snd(pickle.dumps("ok"))
+          got = rec(client_socket)
+          if not got: continue
+          login, password = got
+          pr = find(login, password)
+          #print(pr)
+          snd(pickle.dumps(pr))
+
+    elif command == 'get history':
+          if ENABLE_OUTPUT: print("Working on \"get history\" command.....")
+          snd(pickle.dumps("ok"))
+          got = rec(client_socket)
+          if not got: continue
+          login, password = got
+          if not find(login, password): snd(pickle.dumps(False))
+          ret = return_history(login)
+          send_many(len(ret), ret)
+
+    elif command == 'delete history':
+          if ENABLE_OUTPUT: print("Working on \"delete history\" command.....")
+          snd(pickle.dumps("ok"))
+          got = rec(client_socket)
+          if not got: continue
+          login, password = got
+          ret = delete_history(login, password)
+          snd(pickle.dumps(ret))
+
+    elif command == 'stats':
+      if ENABLE_OUTPUT: print("Working on \"stats\" command.....")
+      snd(pickle.dumps('ok'))
+      try:
+        got = rec(client_socket)
+        if not got: continue
+        got, time_start, time_end, type = got
+      except : continue
+      if ENABLE_OUTPUT: print("Got request: ", got, time_start, time_end)
+      ret = return_stats(got, time_start, time_end, type)
+      send_many(len(ret), ret)
+
+    elif command == 'add star':
+      if ENABLE_OUTPUT: print("Working on \"add star\" command.....")
+      snd(pickle.dumps("ok"))
+      got = rec(client_socket)
+      if not got: continue
+      what, login, password = got
+      add_star(what, login, password)
+      
+    elif command == 'remove star':
+      if ENABLE_OUTPUT: print("Working on \"remove star\" command.....")
+      snd(pickle.dumps("ok"))
+      got = rec(client_socket)
+      if not got: continue
+      what, login, password = got
+      remove_star(what, login, password)
+
+    elif command == 'get stars':
+      if ENABLE_OUTPUT: print("Working on \"get stars\" command.....")
+      snd(pickle.dumps("ok"))
       got = rec(client_socket)
       if not got: continue
       login, password = got
-    except: continue
-    ret = my_assets(login, password)
-    send_many(len(ret), ret)
-
-  elif command == 'bug':
-    if ENABLE_OUTPUT: print("Working on \"bug\" command.....")
-    snd(pickle.dumps('ok'))
-    try:
-      got = rec(client_socket)
-      if not got: continue
-    except: continue
-    bug_log(got)
-
-  elif command == 'register':
-        if ENABLE_OUTPUT: print("Working on \"register\" command.....")
-        snd(pickle.dumps("ok"))
-        got = rec(client_socket)
-        if not got: continue
-        login, password = got
-        snd(pickle.dumps(register(login, password)))
-  elif command == 'get balance':
-        if ENABLE_OUTPUT: print("Working on \"get balance\" command.....")
-        snd(pickle.dumps("ok"))
-        got = rec(client_socket)
-        if not got: continue
-        snd(pickle.dumps(get_balance(got)))
-
-  elif command == 'get id':
-        if ENABLE_OUTPUT: print("Working on \"get id\" command.....")
-        snd(pickle.dumps("ok"))
-        got = rec(client_socket)
-        if not got: continue
-        snd(pickle.dumps(get_id(got)))
-
-  elif command == 'known user':
-        if ENABLE_OUTPUT: print("Working on \"known user\" command.....")
-        snd(pickle.dumps("ok"))
-        got = rec(client_socket)
-        if not got: continue
-        login, password = got
-        pr = find(login, password)
-        #print(pr)
-        snd(pickle.dumps(pr))
-
-  elif command == 'get history':
-        if ENABLE_OUTPUT: print("Working on \"get history\" command.....")
-        snd(pickle.dumps("ok"))
-        got = rec(client_socket)
-        if not got: continue
-        login, password = got
-        if not find(login, password): snd(pickle.dumps(False))
-        ret = return_history(login)
-        send_many(len(ret), ret)
-
-  elif command == 'delete history':
-        if ENABLE_OUTPUT: print("Working on \"delete history\" command.....")
-        snd(pickle.dumps("ok"))
-        got = rec(client_socket)
-        if not got: continue
-        login, password = got
-        ret = delete_history(login, password)
-        snd(pickle.dumps(ret))
-
-  elif command == 'stats':
-    if ENABLE_OUTPUT: print("Working on \"stats\" command.....")
-    snd(pickle.dumps('ok'))
-    try:
-      got = rec(client_socket)
-      if not got: continue
-      got, time_start, time_end, type = got
-    except : continue
-    if ENABLE_OUTPUT: print("Got request: ", got, time_start, time_end)
-    ret = return_stats(got, time_start, time_end, type)
-    send_many(len(ret), ret)
-
-  elif command == 'add star':
-    if ENABLE_OUTPUT: print("Working on \"add star\" command.....")
-    snd(pickle.dumps("ok"))
-    got = rec(client_socket)
-    if not got: continue
-    what, login, password = got
-    add_star(what, login, password)
-    
-  elif command == 'remove star':
-    if ENABLE_OUTPUT: print("Working on \"remove star\" command.....")
-    snd(pickle.dumps("ok"))
-    got = rec(client_socket)
-    if not got: continue
-    what, login, password = got
-    remove_star(what, login, password)
-
-  elif command == 'get stars':
-    if ENABLE_OUTPUT: print("Working on \"get stars\" command.....")
-    snd(pickle.dumps("ok"))
-    got = rec(client_socket)
-    if not got: continue
-    login, password = got
-    ret = get_stars(login, password)
-    send_many(len(ret), ret)
-  else:
-    print("Unknown command.....")
-    continue
+      ret = get_stars(login, password)
+      send_many(len(ret), ret)
+    else:
+      print("Unknown command.....")
+      continue
+  except Exception as E:
+    print("\n\nGUI failed:", E)
   conn.commit()
   conn1.commit()
   conn2.commit()
