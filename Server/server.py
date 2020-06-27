@@ -4,6 +4,9 @@ import sqlite3
 import csv
 import time
 import re
+import os
+
+os.system("color a")
 
 ENABLE_IPv4 = False
 
