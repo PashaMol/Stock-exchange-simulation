@@ -37,13 +37,17 @@ def snd(what):
   return True
 
 
-def box_graph(product, buy_sell):
+def box_graph(product, buy_sell, new):
   c.execute(f"SELECT * FROM orders WHERE product = '{product}' AND request = 'buy' ORDER BY price DESC")
   try: best_ask = c.fetchall()[0][6]
   except: best_ask = 0
+  if new != None:
+    if best_ask > new: best_ask = new
   c.execute(f"SELECT * FROM orders WHERE product = '{product}' AND request = 'sell' ORDER BY price ASC")
   try: best_bid = c.fetchall()[0][6]
   except: best_bid = 0
+  if new != None:
+    if best_bid < new: best_bid = new
   b.execute(f"INSERT INTO box VALUES('{product}', {best_bid}, {best_ask}, {time.time()})")
 
 def return_box_graph(product, buy_sell):
@@ -148,7 +152,7 @@ def remove_star(what, login, password):
     st.execute(f"DELETE FROM stars WHERE login = '{login}' AND what = '{i}'")
   return True
 
-def calc_average(product, buy_sell):
+def calc_average(product, buy_sell, new):
   '''
   prod = product
   if buy_sell == 'sell':
@@ -185,8 +189,9 @@ def calc_average(product, buy_sell):
   '''
   c.execute(f"SELECT * FROM orders WHERE product = '{product}' AND request = '{buy_sell}'")
   fet = c.fetchall()
-  if len(fet) != 0:
-    ret = sum([i[6] for i in fet])/len(fet)
+  if len(fet) != 0 or (len(fet) == 0 and new != None):
+    if new != None: ret = (sum([i[6] for i in fet])+new)/(len(fet)+1)
+    else: ret = sum([i[6] for i in fet])/len(fet)
   else: ret = 0
   s.execute(f"INSERT INTO stats VALUES('{product}', {ret}, {time.time()}, '{buy_sell}')")
   return ret
@@ -404,7 +409,12 @@ def process(b, login, password):
   total = 0
   q = float(amount)
   buy_ssell = 'sell'
-  if buy: buy_ssell = 'buy'
+  '''
+  box_graph(product, 'buy', price)
+  calc_average(product, 'buy', price)
+  box_graph(product, 'sell', price)
+  calc_average(product, 'sell', price)
+  '''
 
   if buy:
     c.execute("SELECT * FROM orders WHERE request = 'sell' AND product = " + "\'" + product + "\'" + " AND price <= " + str(price) + " ORDER BY price")
@@ -507,14 +517,6 @@ def process(b, login, password):
         except:
           min_sell_d[product] = min_sell(product)
         '''
-    box_graph(product, buy_ssell)
-    calc_average(product, buy_ssell)
-    if buy_ssell == "buy":
-      box_graph(product, "sell")
-      calc_average(product, "sell")
-    else:
-      box_graph(product, "buy")
-      calc_average(product, "sell")
       
   if not mm: substract(buy, total, login)
   # print()
@@ -805,7 +807,7 @@ while True:
     else:
       print("Unknown command.....")
       continue
-  except Exception as E:
+  except ValueError as E:
     print("\n\nGUI failed:", E)
   conn.commit()
   conn1.commit()
@@ -816,9 +818,9 @@ while True:
   conn6.commit()
   conn7.commit()
   conn8.commit()
-  if command == "mm_process" or command == "process":
-    box_graph(got[3], "buy")
-    calc_average(got[3], "buy")
-    box_graph(got[3], "sell")
-    calc_average(got[3], "sell")
+  if command == "process" or command == "mm_process":
+    box_graph(got[3], 'buy', None)
+    calc_average(got[3], 'buy', None)
+    box_graph(got[3], 'sell', None)
+    calc_average(got[3], 'sell', None)
   print(f"Request completed in {time.time() - start} seconds.....  {len(update())}")

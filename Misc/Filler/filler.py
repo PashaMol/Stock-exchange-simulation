@@ -27,7 +27,7 @@ conn2 = sqlite3.connect('box.db')
 b = conn2.cursor()
 box_table()
 
-products = ['GasTm', 'PoniesCo']
+products = ['ApplesInc', 'PoniesCo']
 
 while ti_me - time.time() < 0:
     print("TI_ME:", datetime.fromtimestamp(ti_me), "\n\n\n")
