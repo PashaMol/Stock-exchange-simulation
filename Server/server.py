@@ -405,8 +405,6 @@ def process(b, login, password):
   q = float(amount)
   buy_ssell = 'sell'
   if buy: buy_ssell = 'buy'
-  box_graph(product, buy_ssell)
-  calc_average(product, buy_ssell)
 
   if buy:
     c.execute("SELECT * FROM orders WHERE request = 'sell' AND product = " + "\'" + product + "\'" + " AND price <= " + str(price) + " ORDER BY price")
@@ -807,7 +805,7 @@ while True:
     else:
       print("Unknown command.....")
       continue
-  except ValueError as E:
+  except Exception as E:
     print("\n\nGUI failed:", E)
   conn.commit()
   conn1.commit()
@@ -818,4 +816,9 @@ while True:
   conn6.commit()
   conn7.commit()
   conn8.commit()
+  if command == "mm_process" or command == "process":
+    box_graph(got[3], "buy")
+    calc_average(got[3], "buy")
+    box_graph(got[3], "sell")
+    calc_average(got[3], "sell")
   print(f"Request completed in {time.time() - start} seconds.....  {len(update())}")
