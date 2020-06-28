@@ -145,7 +145,7 @@ TIME = 100
 deals = dict()
 for i in range(len(Market.shares)):
     deals[Market.shares[i].name] = [[Market.shares[i].prices[-1]], [Market.shares[i].prices[-1]]];
-
+maxx = 0
 for j in range(1,TIME):
     Market.NewDay()
     Market.Bankruptcy()
@@ -155,24 +155,25 @@ for j in range(1,TIME):
         deals[Market.shares[i].name][1].append(deals[Market.shares[i].name][1][-1])
 
     if (True):
-        while True:
+        for i in range(30):
             res = Traders.Dummy(Market)
 
             if (res == 'fail'):
                 continue
             #print(res)
             #print(deals[res[0]])
-
+            maxx = max(maxx, res[2])
             if (res[1] == "buy"):
                 deals[res[0]][0][-1] = res[2]
             else:
                 deals[res[0]][1][-1] = res[2]
-        #time.sleep(1)
+            time.sleep(0.04)
         print(Market.curprices)
 
 
 
 days = np.linspace(1, TIME, TIME)
+print("MAX:", maxx)
 
 '''
 for i in range(len(Market.shares)):

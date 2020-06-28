@@ -41,12 +41,12 @@ def box_graph(product, buy_sell, new):
   c.execute(f"SELECT * FROM orders WHERE product = '{product}' AND request = 'buy' ORDER BY price DESC")
   try: best_ask = c.fetchall()[0][6]
   except: best_ask = 0
-  if new != None:
+  if new != -69:
     if best_ask > new: best_ask = new
   c.execute(f"SELECT * FROM orders WHERE product = '{product}' AND request = 'sell' ORDER BY price ASC")
   try: best_bid = c.fetchall()[0][6]
   except: best_bid = 0
-  if new != None:
+  if new != -69:
     if best_bid < new: best_bid = new
   b.execute(f"INSERT INTO box VALUES('{product}', {best_bid}, {best_ask}, {time.time()})")
 
@@ -152,6 +152,9 @@ def remove_star(what, login, password):
     st.execute(f"DELETE FROM stars WHERE login = '{login}' AND what = '{i}'")
   return True
 
+global best_bid, best_ask
+best_bid, best_ask = {}, {}
+
 def calc_average(product, buy_sell, new):
   '''
   prod = product
@@ -168,7 +171,7 @@ def calc_average(product, buy_sell, new):
     if temp <= 0:
       temp = 1
     ret = stats[prod][0]/temp
-    s.execute(f"INSERT INTO stats VALUES('{product}', {ret}, {time.time()}, '{buy_sell}')")
+    s.execute(f"INSERT INTO stats VALUES('{product}', {ret}, {ti_me}, '{buy_sell}')")
     return ret
   try:
     c.execute(f"SELECT * FROM orders WHERE product = '{product}' AND request = '{buy_sell}'")
@@ -184,18 +187,33 @@ def calc_average(product, buy_sell, new):
   if a <= 0:
     a = 1
   ret = summ/a
-  s.execute(f"INSERT INTO stats VALUES('{product}', {ret}, {time.time()}, '{buy_sell}')")
+  s.execute(f"INSERT INTO stats VALUES('{product}', {ret}, {ti_me}, '{buy_sell}')")
   return ret
   '''
-  c.execute(f"SELECT * FROM orders WHERE product = '{product}' AND request = '{buy_sell}'")
-  fet = c.fetchall()
-  if len(fet) != 0 or (len(fet) == 0 and new != None):
-    if new != None: ret = (sum([i[6] for i in fet])+new)/(len(fet)+1)
-    else: ret = sum([i[6] for i in fet])/len(fet)
-  else: ret = 0
-  s.execute(f"INSERT INTO stats VALUES('{product}', {ret}, {time.time()}, '{buy_sell}')")
-  return ret
+  global best_bid, best_ask
+  try: sss = best_bid[product]
+  except: best_bid[product] = 0
+  try: sss = best_ask[product]
+  except: best_ask[product] = 0 
+  
+  if buy_sell == "sell":
+    c.execute(f"SELECT * FROM orders WHERE product = '{product}' AND request = 'sell' ORDER BY price ASC")
+    fet = c.fetchall()
+    try: best_bid[product] = fet[0][6]
+    except: pass
+    if new != -69:
+      if best_bid[product] < new: best_bid[product] = new
 
+    s.execute(f"INSERT INTO stats VALUES('{product}', {best_bid[product]}, {time.time()}, '{buy_sell}')")
+
+  else:
+    c.execute(f"SELECT * FROM orders WHERE product = '{product}' AND request = 'buy' ORDER BY price DESC")
+    try: best_ask[product] = c.fetchall()[0][6]
+    except: pass
+    if new != -69:
+      if best_ask[product] > new: best_ask[product] = new
+
+    s.execute(f"INSERT INTO stats VALUES('{product}', {best_ask[product]}, {time.time()}, '{buy_sell}')")
 
 def return_stats(product, time_start, time_end, type):
   try:
@@ -819,8 +837,8 @@ while True:
   conn7.commit()
   conn8.commit()
   if command == "process" or command == "mm_process":
-    box_graph(got[3], 'buy', None)
-    calc_average(got[3], 'buy', None)
-    box_graph(got[3], 'sell', None)
-    calc_average(got[3], 'sell', None)
+    box_graph(got[3], 'buy', -69)
+    calc_average(got[3], 'buy', -69)
+    box_graph(got[3], 'sell', -69)
+    calc_average(got[3], 'sell', -69)
   print(f"Request completed in {time.time() - start} seconds.....  {len(update())}")
