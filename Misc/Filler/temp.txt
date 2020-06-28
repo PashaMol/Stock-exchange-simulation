@@ -1,0 +1,14 @@
+global ti_me
+ti_me = time.time() - 3600*30
+def time_skip():
+  global ti_me
+  ti_me = time.time() - 3600*24
+  for i in range(78):
+    time.sleep(7.5)
+    print("TI_ME:", datetime.fromtimestamp(ti_me), "\n\n\n")
+    ti_me += 3600
+    #if ti_me - time.time() >= 3600*24: exit()
+    
+global t
+t = threading.Thread(target=time_skip, name='Time_skip', daemon = True)
+t.start()

@@ -155,7 +155,7 @@ for j in range(1,TIME):
         deals[Market.shares[i].name][1].append(deals[Market.shares[i].name][1][-1])
 
     if (True):
-        for i in range(10):
+        while True:
             res = Traders.Dummy(Market)
 
             if (res == 'fail'):
@@ -174,11 +174,12 @@ for j in range(1,TIME):
 
 days = np.linspace(1, TIME, TIME)
 
+'''
 for i in range(len(Market.shares)):
     print(Market.shares[i].prices[0])
     plt.plot(days, deals[Market.shares[i].name][0], label='buy')
     plt.plot(days, deals[Market.shares[i].name][1], label='sell')
     plt.title(Market.shares[i].name)
     plt.show()
-
+'''
 
